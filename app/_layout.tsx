@@ -1,9 +1,21 @@
 import { Stack } from "expo-router";
+import { useEffect } from "react";
+import { Platform } from "react-native";
+import * as StatusBar from "expo-status-bar";
 
-export default function () {
+export default function Layout () {
+  useEffect(() => {
+    StatusBar.setStatusBarStyle('dark');
+    if (Platform.OS === 'android') {
+      StatusBar.setStatusBarBackgroundColor('transparent', false);
+    }
+  }, []);
+  
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false }} >
       <Stack.Screen name="index" />
+      <Stack.Screen name="registration/form" />
+      <Stack.Screen name="registration/code" />
     </Stack>
   )
 }
