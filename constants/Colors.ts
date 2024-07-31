@@ -6,4 +6,5 @@ export default {
   text: '#1F1F1F',
   textSecondary: '#9B9B9B',
   textContrast: '#ECECEC',
+  danger: '#ff0000',
 }

@@ -3,6 +3,7 @@ import React, {
   useState
 } from "react";
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -19,21 +20,19 @@ import {
 } from "@app/components";
 import { Colors } from "@app/constants";
 import { useNavigation } from "expo-router";
+import api from "@app/api";
+import { getErrorMessage } from "@app/utils/text";
 
-interface IRegistration {
-  plate: string;
-  name: string;
-  email: string;
-  password: string;
-}
+type FormKey = 'name' | 'email' | 'password' | 'password_confirmation';
 
 export default function RegistrationPage() {
   const navigation: any = useNavigation();
   const [checked, setChecked] = useState(false);
-  const [formData, setFormData] = useState<IRegistration>();
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<Record<FormKey, string>>();
   const isFormValid = useMemo(validateFormData, [formData]);
 
-  function handleForm(key: keyof IRegistration, value: string) {
+  function handleForm(key: FormKey, value: string) {
     setFormData((prev: any) => ({
       ...prev,
       [key]: value
@@ -48,11 +47,6 @@ export default function RegistrationPage() {
     let isValid = true;
 
     for (const key in formData) {
-      if (key === 'plate' && formData[key].length !== 7) {
-        isValid = false;
-        break;
-      }
-
       if (key === 'name' && formData[key].length < 7) {
         isValid = false;
         break;
@@ -67,9 +61,25 @@ export default function RegistrationPage() {
         isValid = false;
         break;
       }
+
+      if (formData.password !== formData.password_confirmation) {
+        isValid = false;
+        break;
+      }
     }
 
     return isValid;
+  }
+
+  async function handleSubmit() {
+    setLoading(true);
+    try {
+      await api.auth.register(formData as any);
+      setFormData(undefined);
+    } catch (error: any) {
+      Alert.alert('Erro', getErrorMessage(error))
+    }
+    setLoading(false);
   }
 
   return (
@@ -81,14 +91,14 @@ export default function RegistrationPage() {
           Informe seus dados
         </Text>
 
-        <Input
+        {/* <Input
           autoCapitalize="characters"
           label="Placa do veículo"
           placeholder="OFU4B68"
           onChangeText={(value) => handleForm('plate', value)}
           maxLength={7}
           value={formData?.plate}
-        />
+        /> */}
 
         <Input
           autoCapitalize="words"
@@ -119,6 +129,17 @@ export default function RegistrationPage() {
           value={formData?.password}
         />
 
+        <Input
+          autoCapitalize="none"
+          autoComplete="new-password"
+          label="Confirme sua senha"
+          keyboardType="email-address"
+          placeholder="••••••"
+          secureTextEntry
+          onChangeText={(value) => handleForm('password_confirmation', value)}
+          value={formData?.password_confirmation}
+        />
+
         <Pressable onPress={() => setChecked(!checked)} style={styles.terms}>
           <View style={styles.checkbox}>
             {checked &&
@@ -134,7 +155,8 @@ export default function RegistrationPage() {
         <Button
           label="Continuar"
           outline={!(isFormValid && checked)}
-          onPress={() => navigation.navigate('code')}
+          loading={loading}
+          onPress={handleSubmit}
           disabled={!(isFormValid && checked)}
         />
       </ContainerImage>

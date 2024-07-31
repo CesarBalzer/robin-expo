@@ -33,6 +33,7 @@ export default function StartPage () {
         <Button
           label="Acessar minha conta"
           outline
+          onPress={() => navigation.navigate('auth/login')}
         />
       </View>
     </ContainerImage>

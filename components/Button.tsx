@@ -1,14 +1,16 @@
-import { StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from "react-native"
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from "react-native"
 import Colors from "../constants/Colors";
 
 interface ButtonProps extends TouchableOpacityProps {
   label?: string;
   outline?: boolean;
+  loading?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
   label,
   outline,
+  loading,
   ...props
 }) => {
   return (
@@ -17,9 +19,15 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
       style={[styles.button, outline && styles.outline, props.style]}
     >
-      <Text style={[styles.text, outline && styles.outlineText]}>
-        {label}
-      </Text>
+      {loading ?
+        <ActivityIndicator
+          color={Colors.primarySurface}
+        />
+        :
+        <Text style={[styles.text, outline && styles.outlineText]}>
+          {label}
+        </Text>
+      }
     </TouchableOpacity>
   )
 }
