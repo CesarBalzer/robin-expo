@@ -1,20 +1,29 @@
 import React from 'react';
-import {TouchableOpacity, StyleSheet} from 'react-native';
-import {MaterialIcons} from '@expo/vector-icons';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import Colors from '@app/constants/Colors';
-import {useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 
 interface BackButtonProps {
   path?: string;
+  onPress?: () => void; // Função callback opcional
 }
 
-const BackButton: React.FC<BackButtonProps> = ({path}) => {
+const BackButton: React.FC<BackButtonProps> = ({ path, onPress }) => {
   const router = useRouter();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress(); // Se a função for fornecida, executa a função
+    } else {
+      router.replace(path || '/'); // Caso contrário, navega para a URL fornecida
+    }
+  };
 
   return (
     <TouchableOpacity
       style={styles.button}
-      onPress={() => router.replace(path || '/')} 
+      onPress={handlePress} 
     >
       <MaterialIcons name="chevron-left" size={24} color="#fff" />
     </TouchableOpacity>

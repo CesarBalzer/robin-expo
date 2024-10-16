@@ -1,11 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import {Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View} from 'react-native';
 import {logo} from '@app/assets';
-import {Button, ContainerImage, Input} from '@app/components';
+import {ContainerImage, Input} from '@app/components';
 import {Colors} from '@app/constants';
 import {useNavigation} from 'expo-router';
 import api from '@app/api';
 import {getErrorMessage} from '@app/utils/text';
+import {ButtonCustom} from '@app/components/ButtonCustom';
 
 type FormKey = 'name' | 'email' | 'password' | 'password_confirmation';
 
@@ -74,32 +75,63 @@ export default function RegistrationPage() {
 
 				<Text style={{fontSize: 28, fontWeight: '700', textAlign: 'center'}}>Informe seus dados</Text>
 
-				{/* <Input
-          autoCapitalize="characters"
-          label="Placa do veículo"
-          placeholder="OFU4B68"
-          onChangeText={(value) => handleForm('plate', value)}
-          maxLength={7}
-          value={formData?.plate}
-        /> */}
+				<Input
+					autoCapitalize="words"
+					label="Nome completo"
+					placeholder="Nome completo"
+					onChangeText={(value) => handleForm('name', value)}
+					value={formData?.name}
+				/>
 
-				<Input autoCapitalize="words" label="Nome completo" placeholder="Nome completo" onChangeText={(value) => handleForm('name', value)} value={formData?.name} />
+				<Input
+					autoComplete="email"
+					autoCapitalize="none"
+					label="Digite seu email"
+					keyboardType="email-address"
+					placeholder="exemplo@email.com"
+					onChangeText={(value) => handleForm('email', value)}
+					value={formData?.email}
+				/>
 
-				<Input autoComplete="email" autoCapitalize="none" label="Digite seu email" keyboardType="email-address" placeholder="exemplo@email.com" onChangeText={(value) => handleForm('email', value)} value={formData?.email} />
+				<Input
+					autoCapitalize="none"
+					autoComplete="new-password"
+					label="Crie uma senha"
+					keyboardType="email-address"
+					placeholder="••••••"
+					secureTextEntry
+					onChangeText={(value) => handleForm('password', value)}
+					value={formData?.password}
+				/>
 
-				<Input autoCapitalize="none" autoComplete="new-password" label="Crie uma senha" keyboardType="email-address" placeholder="••••••" secureTextEntry onChangeText={(value) => handleForm('password', value)} value={formData?.password} />
-
-				<Input autoCapitalize="none" autoComplete="new-password" label="Confirme sua senha" keyboardType="email-address" placeholder="••••••" secureTextEntry onChangeText={(value) => handleForm('password_confirmation', value)} value={formData?.password_confirmation} />
+				<Input
+					autoCapitalize="none"
+					autoComplete="new-password"
+					label="Confirme sua senha"
+					keyboardType="email-address"
+					placeholder="••••••"
+					secureTextEntry
+					onChangeText={(value) => handleForm('password_confirmation', value)}
+					value={formData?.password_confirmation}
+				/>
 
 				<Pressable onPress={() => setChecked(!checked)} style={styles.terms}>
 					<View style={styles.checkbox}>{checked && <View style={styles.box} />}</View>
 
 					<Text style={{flex: 1}}>
-						Li e concordo com os <Text style={{color: Colors.primary}}>Termos de uso</Text> e a <Text style={{color: Colors.primary}}>Política de privacidade</Text> do Robim
+						Li e concordo com os <Text style={{color: Colors.primary}}>Termos de uso</Text> e a{' '}
+						<Text style={{color: Colors.primary}}>Política de privacidade</Text> do Robim
 					</Text>
 				</Pressable>
 
-				<Button label="Continuar" outline={!(isFormValid && checked)} loading={loading} onPress={handleSubmit} disabled={!(isFormValid && checked)} />
+				<ButtonCustom
+					fullWidth
+					label="Continuar"
+					outline={!(isFormValid && checked)}
+					loading={loading}
+					onPress={handleSubmit}
+					disabled={!(isFormValid && checked)}
+				/>
 			</ContainerImage>
 		</KeyboardAvoidingView>
 	);

@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, ScrollView, StyleSheet, Text} from 'react-native';
 import VehicleInfo from '@app/components/VehicleInfo';
 import ItemInfo from '@app/components/ItemInfo';
 import Tabs from '@app/components/Tabs';
 import {useRouter} from 'expo-router';
+import api from '@app/api';
+import {formatCurrency} from '@app/utils/helper';
+import {formatDate} from 'date-fns';
 
 type TabKey = 'open' | 'paid';
 
@@ -15,35 +18,100 @@ const InfractionScreen: React.FC = () => {
 		{key: 'open', label: 'Multas em Aberto'},
 		{key: 'paid', label: 'Multas Pagas'}
 	];
+	const [infractions, setInfractions] = useState();
 
-	const openFines = [
+	useEffect(() => {
+		(async () => {
+			loadData();
+		})();
+	}, []);
+
+	const loadData = async () => {
+		const id = 10;
+		try {
+			const response = await api.infraction.fetch(id);
+			console.log('RESPONSE => ', response);
+			// setInfractions(response.multas);
+		} catch (error) {}
+	};
+
+	const openFinesMock = [
 		{
-			id: 1,
-			title: 'Multa por excesso de beleza',
-			subtitle: 'R$ 1.234,00',
-			helper: 'Vencimento em: 30/11/2029',
-			isPaid: true,
-			isOverdue: false
+			long_id: 1,
+			name: 'Multa por excesso de beleza',
+			value: 1234.0,
+			year: 2029,
+			duedate: '2029-11-30',
+			detail: {
+				ait: 'AA12345678',
+				data: '2029-11-01 12:00:00',
+				guia: '123456789',
+				local: 'Rua da Beleza, 123',
+				valor: 'R$ 1.234,00',
+				receita: 'DETRAN',
+				infracao: 'Excesso de beleza',
+				municipio: 'São Paulo',
+				vencimento: '2029-11-30'
+			}
 		},
 		{
-			id: 2,
-			title: 'Multa por excesso de velocidade',
-			subtitle: 'R$ 200,00',
-			helper: 'Vencimento em: 30/11/2022',
-			isPaid: false,
-			isOverdue: true
+			long_id: 2,
+			name: 'Multa por excesso de velocidade',
+			value: 200.0,
+			year: 2022,
+			duedate: '2022-11-30',
+			detail: {
+				ait: 'AA23456789',
+				data: '2022-11-01 14:00:00',
+				guia: '987654321',
+				local: 'Av. Rápida, 456',
+				valor: 'R$ 200,00',
+				receita: 'DETRAN',
+				infracao: 'Excesso de velocidade',
+				municipio: 'Rio de Janeiro',
+				vencimento: '2022-11-30'
+			}
 		},
 		{
-			id: 3,
-			title: 'Multa por não uso do cinto',
-			subtitle: 'R$ 100,00',
-			helper: 'Vencimento em: 05/12/2022',
-			isPaid: true,
-			isOverdue: false
+			long_id: 3,
+			name: 'Multa por não uso do cinto',
+			value: 100.0,
+			year: 2022,
+			duedate: '2022-12-05',
+			detail: {
+				ait: 'AA34567890',
+				data: '2022-12-01 10:00:00',
+				guia: '112233445',
+				local: 'Rua da Segurança, 789',
+				valor: 'R$ 100,00',
+				receita: 'DETRAN',
+				infracao: 'Não uso do cinto',
+				municipio: 'Curitiba',
+				vencimento: '2022-12-05'
+			}
 		}
 	];
 
-	const paidFines = [{id: 4, title: 'Multa por estacionamento irregular', subtitle: 'R$ 50,00', helper: 'Pago em: 10/10/2024'}];
+	const paidFinesMock = [
+		{
+			long_id: 4,
+			name: 'Multa por estacionamento irregular',
+			value: 50.0,
+			year: 2024,
+			duedate: '2024-10-10',
+			detail: {
+				ait: 'AA45678901',
+				data: '2024-06-13 19:43:00',
+				guia: '180187820',
+				local: 'AV. CARLOS CALDEIRA FILHO, SN',
+				valor: 'R$ 50,00',
+				receita: 'DETRAN',
+				infracao: 'Estacionamento irregular.',
+				municipio: 'São Paulo',
+				vencimento: '2024-10-10'
+			}
+		}
+	];
 
 	return (
 		<View style={styles.container}>
@@ -53,27 +121,29 @@ const InfractionScreen: React.FC = () => {
 
 			<ScrollView style={styles.finesContainer} showsVerticalScrollIndicator={false}>
 				{activeTab === 'open' &&
-					openFines.map((fine, index) => (
+					openFinesMock.map((fine, index) => (
 						<ItemInfo
 							key={index}
-							title={fine.title}
-							subtitle={fine.subtitle}
-							helper={fine.helper}
-							isPaid={fine.isPaid}
-							isOverdue={fine.isOverdue}
-							onPress={() => router.push(`infractions/${fine.id}`)}
+							title={fine.name}
+							subtitle={formatCurrency(fine.value)}
+							helper={formatDate(new Date(fine.duedate), 'dd/MM/yyyy')}
+							isPaid={false}
+							isOverdue={true}
+							// onPress={() => router.push(`infractions/${fine.id}`)}
+							onPress={() => router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})}
 						/>
 					))}
 				{activeTab === 'paid' &&
-					paidFines.map((fine, index) => (
+					paidFinesMock.map((fine, index) => (
 						<ItemInfo
 							key={index}
-							title={fine.title}
-							subtitle={fine.subtitle}
-							helper={fine.helper}
-							isPaid={true}
-							isOverdue={false}
-							onPress={() => router.push(`infractions/${fine.id}`)}
+							title={fine.name}
+							subtitle={formatCurrency(fine.value)}
+							helper={formatDate(new Date(fine.duedate), 'dd/MM/yyyy')}
+							isPaid={false}
+							isOverdue={true}
+							// onPress={() => router.push(`infractions/${fine.id}`)}
+							onPress={() => router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})}
 						/>
 					))}
 			</ScrollView>

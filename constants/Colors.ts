@@ -8,4 +8,5 @@ export default {
   textContrast: '#ECECEC',
   danger: '#F86868',
   success: '#00E0A8',
+  warning: '#f5dd4b',
 }

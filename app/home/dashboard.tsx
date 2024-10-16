@@ -1,18 +1,21 @@
-import React, {useState} from 'react';
-import {Text, View, StyleSheet, ScrollView, Image, Dimensions} from 'react-native';
-import {Button} from '@app/components';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
+import {Text, View, StyleSheet, ScrollView, Image, Dimensions, BackHandler} from 'react-native';
 import VehiclePlate from '@app/components/VehiclePlate';
 import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import {Colors} from '@app/constants';
 import Menu from '@app/components/MenuCard';
 import {banner_home} from '@app/assets';
-import {useNavigation} from 'expo-router';
+import {useNavigation, useRouter} from 'expo-router';
 import {useModal} from '@app/context/modalcontext';
+import {useAuth} from '@app/hooks/useAuth';
+import {ButtonCustom} from '@app/components/ButtonCustom';
+import {Ionicons} from '@expo/vector-icons';
 
 const {width} = Dimensions.get('window');
 
 const DashboardScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
+	const {logout} = useAuth();
 	const navigation: any = useNavigation();
 	const {showModal} = useModal();
 	const menuItems = [
@@ -26,6 +29,22 @@ const DashboardScreen: React.FC = () => {
 		{icon: 'currency-usd', label: 'Financiamento', onPress: () => navigation.navigate('financing')}
 	];
 
+	useEffect(() => {
+		const backAction = () => {
+			return true;
+		};
+
+		const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+		return () => backHandler.remove();
+	}, []);
+
+	useLayoutEffect(() => {
+		navigation.setOptions({
+			gestureEnabled: false
+		});
+	}, [navigation]);
+
 	const VehicleInfo: React.FC<VehicleInfoProps> = ({loading}) => (
 		<View style={styles.vehicleInfoContainer}>
 			<View style={styles.plateContainer}>
@@ -34,7 +53,7 @@ const DashboardScreen: React.FC = () => {
 			<Text style={styles.vehicleName}>Chevrolet Impala</Text>
 			<StatusBadge />
 			<Text style={styles.updateText}>Atualizado em: 14/10/2024 - 13:00</Text>
-			<Button
+			<ButtonCustom
 				label="Trocar de veículo"
 				outline
 				rounded
@@ -52,6 +71,10 @@ const DashboardScreen: React.FC = () => {
 		</View>
 	);
 
+	const handleLogout = async () => {
+		await logout(false);
+	};
+
 	return (
 		<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
 			<Header />
@@ -60,6 +83,16 @@ const DashboardScreen: React.FC = () => {
 			<Menu items={menuItems} />
 			<View style={styles.bannerContainer}>
 				<Image source={banner_home} style={styles.banner} />
+			</View>
+			<View style={styles.logoutButtonContainer}>
+				<ButtonCustom
+					label="Sair do app"
+					size="small"
+					fullWidth
+					loading={loading}
+					onPress={handleLogout}
+					icon={<Ionicons name="exit-outline" size={20} color={Colors.primarySurface} />}
+				/>
 			</View>
 		</ScrollView>
 	);
@@ -157,6 +190,11 @@ const styles = StyleSheet.create({
 		width: width * 0.9,
 		height: width * 0.9 * (210 / 390),
 		resizeMode: 'contain'
+	},
+	logoutButtonContainer: {
+		marginTop: 20,
+		marginBottom: 30,
+		alignItems: 'center'
 	}
 });
 

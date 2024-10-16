@@ -2,7 +2,8 @@ import 'expo-router/entry';
 import {Image, Text, View} from 'react-native';
 import {useNavigation} from 'expo-router';
 import {logo} from '@app/assets';
-import {Button, ContainerImage} from '@app/components';
+import {ContainerImage} from '@app/components';
+import {ButtonCustom} from '@app/components/ButtonCustom';
 
 export default function StartPage() {
 	const navigation: any = useNavigation();
@@ -20,8 +21,8 @@ export default function StartPage() {
 			</View>
 
 			<View style={{flex: 1, gap: 20, justifyContent: 'flex-end'}}>
-				<Button label="Criar minha conta" onPress={() => navigation.navigate('auth/registration/form')} />
-				<Button label="Acessar minha conta" outline onPress={() => navigation.navigate('auth/login')} />
+				<ButtonCustom fullWidth label="Criar minha conta" onPress={() => navigation.navigate('auth/registration/form')} />
+				<ButtonCustom fullWidth label="Acessar minha conta" outline onPress={() => navigation.navigate('auth/login')} />
 			</View>
 		</ContainerImage>
 	);

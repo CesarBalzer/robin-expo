@@ -21,7 +21,7 @@ export default function Layout() {
 		{name: 'cnh', backPath: 'home', showBackButton: true},
 		{name: 'dpvat', backPath: 'home', showBackButton: true},
 		{name: 'infraction', backPath: 'home', showBackButton: true},
-		// {name: 'infraction/detail', backPath: 'home', showBackButton: true},
+		// {name: 'infractions', backPath: 'home', showBackButton: true},
 		{name: 'ipva', backPath: 'home', showBackButton: true},
 		{name: 'crlv', backPath: 'home', showBackButton: true},
 		{name: 'license', backPath: 'home', showBackButton: true},

@@ -88,10 +88,7 @@ const InfractionScreen: React.FC = () => {
 					</View>
 				</View>
 				<View style={styles.cardFooter}>
-					
-					<Button label='PAGAR' size="medium" 
-					onPress={() => router.push({pathname: `payments/${fine.id}`, params: {infraction: 'random', id: fine.id}})}
-					/>
+					<Button label='PAGAR' size="medium"/>
 				</View>
 			</ScrollView>
 		</View>

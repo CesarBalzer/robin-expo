@@ -1,69 +1,102 @@
-import { Image, Text } from "react-native";
-import { Button, ContainerImage, Input } from "@app/components";
-import { logo } from "@app/assets";
-import { useState } from "react";
-import api from "@app/api";
-import { useNavigation } from "expo-router";
+import {Image, Switch, Text, View} from 'react-native';
+import {ContainerImage, Input} from '@app/components';
+import {logo} from '@app/assets';
+import {useState, useEffect} from 'react';
+import api from '@app/api';
+import {useAuth} from '@app/hooks/useAuth';
+import StorageService from '@app/services/StorageService';
+import {Colors} from '@app/constants';
+import {ButtonCustom} from '@app/components/ButtonCustom';
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState<string>('cesar.balzer@codesign.ag');
-  const [password, setPassword] = useState<string>('Secret.321');
-  const navigation: any = useNavigation();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  
+	const [email, setEmail] = useState<string>('');
+	const [password, setPassword] = useState<string>('');
+	const [rememberMe, setRememberMe] = useState<boolean>(false);
+	const [loading, setLoading] = useState<boolean>(false);
+	const [error, setError] = useState<boolean>(false);
 
-  async function handleSubmit() {
-    if (!email || !password) {
-      return setError(true);
-    }
-    setLoading(true)
-    try {
-      await api.auth.login(email, password);
-      navigation.navigate('home');
-    } catch (error) {
-      
-    }
-    setLoading(false);
-  }
+	const {login} = useAuth();
 
-  return (
-    <ContainerImage background="car" scrollable contentContainerStyle={{ justifyContent: 'center', gap: 20 }}>
-      <Image
-        source={logo}
-        style={{ alignSelf: 'center' }}
-      />
+	useEffect(() => {
+		const loadStoredData = async () => {
+			const storedEmail = await StorageService.getData('email');
+			const storedPassword = await StorageService.getData('password');
+			if (storedEmail && storedPassword) {
+				setEmail(storedEmail);
+				setPassword(storedPassword);
+				setRememberMe(true);
+			}
+		};
 
-      <Text style={{ alignSelf: 'center', fontSize: 28, fontWeight: '600' }}>
-        Acessar minha conta
-      </Text>
+		loadStoredData();
+	}, []);
 
-      <Input
-        autoCapitalize="none"
-        label="Email"
-        inputMode="email"
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-        error={error && !email}
-        helperText={(error && !email) ? 'Campo obrigatório' : undefined}
-      />
+	async function handleSubmit() {
+		if (!email || !password) {
+			return setError(true);
+		}
 
-      <Input
-        autoCapitalize="none"
-        label="Senha"
-        secureTextEntry
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        error={(error && !password)}
-        helperText={(error && !password) ? 'Campo obrigatório' : undefined}
-      />
+		setLoading(true);
 
-      <Button
-        label="Entrar"
-        loading={loading}
-        onPress={handleSubmit}
-      />
+		try {
+			const response = await api.auth.login(email, password);
+			const {access_token, user} = response;
 
-    </ContainerImage>
-  )
+			await login(access_token, user);
+
+			if (rememberMe) {
+				await StorageService.storeData('email', email);
+				await StorageService.storeData('password', password);
+			} else {
+				await StorageService.remove('email');
+				await StorageService.remove('password');
+			}
+		} catch (error) {
+			console.error(error);
+			setError(true);
+		} finally {
+			setLoading(false);
+		}
+	}
+
+	return (
+		<ContainerImage background="car" scrollable contentContainerStyle={{justifyContent: 'center', gap: 20}}>
+			<Image source={logo} style={{alignSelf: 'center'}} />
+
+			<Text style={{alignSelf: 'center', fontSize: 28, fontWeight: '600'}}>Acessar minha conta</Text>
+
+			<Input
+				autoCapitalize="none"
+				label="Email"
+				inputMode="email"
+				value={email}
+				onChangeText={(text) => setEmail(text)}
+				error={error && !email}
+				helperText={error && !email ? 'Campo obrigatório' : undefined}
+			/>
+
+			<Input
+				autoCapitalize="none"
+				label="Senha"
+				secureTextEntry
+				value={password}
+				onChangeText={(text) => setPassword(text)}
+				error={error && !password}
+				helperText={error && !password ? 'Campo obrigatório' : undefined}
+			/>
+
+			<View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+				<Switch
+					trackColor={{false: Colors.text, true: Colors.primary}}
+					thumbColor={rememberMe ? Colors.warning : Colors.primarySurface}
+					ios_backgroundColor={Colors.textSecondary}
+					onValueChange={() => setRememberMe((prev) => !prev)}
+					value={rememberMe}
+				/>
+				<Text style={{fontStyle: 'italic', paddingHorizontal: 10, color: Colors.text}}>Lembrar dados de acesso</Text>
+			</View>
+
+			<ButtonCustom fullWidth label="Entrar" loading={loading} onPress={handleSubmit} />
+		</ContainerImage>
+	);
 }
