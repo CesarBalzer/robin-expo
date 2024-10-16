@@ -8,6 +8,6 @@ export class Auth extends Module {
   }
 
   register(params: { name: string; email: string; password: string; password_confirmation: string; }) {
-    return this.post('/auth/login', params);
+    return this.post('/auth/register', params);
   }
 }

@@ -3,11 +3,12 @@ import { Button, ContainerImage, Input } from "@app/components";
 import { logo } from "@app/assets";
 import { useState } from "react";
 import api from "@app/api";
+import { useNavigation } from "expo-router";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState<string>();
-  const [password, setPassword] = useState<string>();
-
+  const [email, setEmail] = useState<string>('cesar.balzer@codesign.ag');
+  const [password, setPassword] = useState<string>('Secret.321');
+  const navigation: any = useNavigation();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   
@@ -19,6 +20,7 @@ export default function LoginScreen() {
     setLoading(true)
     try {
       await api.auth.login(email, password);
+      navigation.navigate('home');
     } catch (error) {
       
     }
