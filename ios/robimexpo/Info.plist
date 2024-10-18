@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>CADisableMinimumFrameDurationOnPhone</key>
-    <true/>
+    <true />
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
@@ -34,13 +34,13 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSRequiresIPhoneOS</key>
-    <true/>
+    <true />
     <key>NSAppTransportSecurity</key>
     <dict>
       <key>NSAllowsArbitraryLoads</key>
-      <false/>
+      <false />
       <key>NSAllowsLocalNetworking</key>
-      <true/>
+      <true />
     </dict>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
@@ -49,7 +49,7 @@
       <string>arm64</string>
     </array>
     <key>UIRequiresFullScreen</key>
-    <false/>
+    <false />
     <key>UIStatusBarStyle</key>
     <string>UIStatusBarStyleDefault</string>
     <key>UISupportedInterfaceOrientations</key>
@@ -67,6 +67,21 @@
     <key>UIUserInterfaceStyle</key>
     <string>Light</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
-    <false/>
+    <false />
+
+    <!-- <key>NSCameraUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso a câmera para enviar as fotos de seus documentos e de sua selfie para a abertura da conta.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>A ativação do Face ID permite um acesso rápido e seguro à sua conta.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso a localização do dispositivo para dar mais segurança a sua conta.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso a localização do dispositivo para dar mais segurança a sua conta.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso a localização do dispositivo para dar mais segurança a sua conta.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso mic.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) precisa de acesso as fotos para realizar pagamentos Pix atráves da leitura de QR Code.</string> -->
   </dict>
 </plist>
