@@ -43,7 +43,7 @@ export default function Layout() {
 						},
 						headerTitleAlign: 'center',
 						headerShadowVisible: false,
-						headerTitle: () => <Image source={logo} style={{width: 100, height: 41}} />
+						headerTitle: () => <Image source={logo} style={{width: 100, height: 42}} />
 					}}
 				>
 					{routesConfig.map(({name, backPath, showBackButton}) => (

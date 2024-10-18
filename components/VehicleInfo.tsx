@@ -14,7 +14,7 @@ interface VehiclesProps {
 }
 
 const VehicleInfo: React.FC<VehiclesProps> = ({vehicles, loading}) => {
-	console.log('VEHICLES => ', vehicles);
+	// console.log('VEHICLE INFO => ', vehicles);
 	const {showModal} = useModal();
 
 	const StatusBadge = () => (

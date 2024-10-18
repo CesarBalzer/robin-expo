@@ -8,16 +8,17 @@ import {Stack, useRouter} from 'expo-router';
 import * as StatusBar from 'expo-status-bar';
 import {AuthProvider} from '@app/context/AuthContext';
 import {ThemeProvider} from '@app/context/ThemeContext';
-import { useAuth } from '@app/hooks/useAuth';
+import {useAuth} from '@app/hooks/useAuth';
 import api from '@app/api';
-
-
+import {VehicleProvider} from '@app/context/VehicleContext';
 
 const Layout: React.FC = () => {
 	return (
 		<ThemeProvider>
 			<AuthProvider>
-				<MainStack />
+				<VehicleProvider>
+					<MainStack />
+				</VehicleProvider>
 			</AuthProvider>
 		</ThemeProvider>
 	);

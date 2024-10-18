@@ -1,5 +1,6 @@
 import {Colors} from '@app/constants';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
@@ -31,14 +32,21 @@ const MenuCard: React.FC<MenuCardProps> = ({icon = 'star', label, notifications,
 };
 
 interface MenuProps {
-	items: Array<{icon: string; label: string; notifications?: number; onPress: () => void}>;
+	items: Array<{icon: string; label: string; notifications?: number; path: string}>;
 }
 
 const Menu: React.FC<MenuProps> = ({items}) => {
+	const navigation = useRouter();
 	return (
 		<View style={styles.menuContainer}>
 			{items.map((item, index) => (
-				<MenuCard key={index} icon={item.icon} label={item.label} notifications={item.notifications} onPress={item.onPress} />
+				<MenuCard
+					key={index}
+					icon={item.icon}
+					label={item.label}
+					notifications={item.notifications}
+					onPress={() => navigation.navigate(item.path)}
+				/>
 			))}
 		</View>
 	);

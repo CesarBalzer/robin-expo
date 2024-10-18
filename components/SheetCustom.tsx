@@ -9,7 +9,7 @@ interface CustomModalProps {
 	content: React.ReactNode;
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({visible, onClose, onCloseBackdrop, content}) => {
+const SheetCustom: React.FC<CustomModalProps> = ({visible, onClose, onCloseBackdrop, content}) => {
 	return (
 		<Modal visible={visible} transparent animationType="slide">
 			<View style={styles.backdrop} onTouchEnd={onCloseBackdrop}>
@@ -49,4 +49,4 @@ const styles = StyleSheet.create({
 	}
 });
 
-export default CustomModal;
+export default SheetCustom;
