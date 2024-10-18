@@ -4,20 +4,22 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 interface MenuCardProps {
-	icon: string | null;
+	icon: any;
 	label: string;
 	notifications?: number;
 	onPress: () => void;
 }
 
-const MenuCard: React.FC<MenuCardProps> = ({icon, label, notifications, onPress}) => {
+const MenuCard: React.FC<MenuCardProps> = ({icon = 'star', label, notifications, onPress}) => {
 	const iconColor = notifications && notifications > 0 ? Colors.danger : Colors.primary;
 
 	return (
 		<TouchableOpacity style={styles.card} onPress={onPress}>
-			<View style={styles.iconContainer}>
-				<MaterialCommunityIcons name={icon} size={32} color={iconColor} />
-			</View>
+			{icon && (
+				<View style={styles.iconContainer}>
+					<MaterialCommunityIcons name={icon} size={32} color={iconColor} />
+				</View>
+			)}
 			{notifications && notifications > 0 && (
 				<View style={styles.badge}>
 					<Text style={styles.badgeText}>{notifications}</Text>
@@ -47,13 +49,13 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		flexWrap: 'wrap',
 		justifyContent: 'space-between',
-		paddingHorizontal: 0, // Removido para evitar margens laterais
+		paddingHorizontal: 0
 	},
 	card: {
 		backgroundColor: '#FFFFFF',
 		borderRadius: 15,
 		padding: 10,
-		width: '48%', // Garante que dois cartões caibam na linha
+		width: '48%',
 		height: 130,
 		flexDirection: 'column',
 		alignItems: 'center',
@@ -67,11 +69,11 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.2,
 		shadowRadius: 1.5,
 		position: 'relative',
-		marginBottom: 15, // Ajuste no espaçamento vertical
+		marginBottom: 15
 	},
 	iconContainer: {
 		marginBottom: 5,
-		alignItems: 'center',
+		alignItems: 'center'
 	},
 	badge: {
 		position: 'absolute',
@@ -80,19 +82,19 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.danger,
 		borderRadius: 10,
 		paddingHorizontal: 6,
-		paddingVertical: 2,
+		paddingVertical: 2
 	},
 	badgeText: {
 		color: '#FFFFFF',
 		fontSize: 12,
-		fontWeight: 'bold',
+		fontWeight: 'bold'
 	},
 	label: {
 		fontSize: 14,
 		fontWeight: '500',
 		color: '#000',
-		textAlign: 'center',
-	},
+		textAlign: 'center'
+	}
 });
 
 export default Menu;

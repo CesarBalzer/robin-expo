@@ -1,7 +1,7 @@
 import Module from './module';
 
 export class Vehicle extends Module {
-	fetch(id: number) {
+	fetch(id: string) {
 		return this.get(`/vehicle/${id}`);
 	}
 }

@@ -5,9 +5,17 @@ import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
 import {ButtonCustom} from '@app/components/ButtonCustom';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
-import {logo, qrcode} from '@app/assets';
+import {qrcode} from '@app/assets';
 
-const InfractionScreen: React.FC = () => {
+type PaymentStatus = 'pago' | 'pendente' | 'cancelado';
+// Tipos para ícones
+type StatusIconMapping = {
+	pago: 'check-circle';
+	pendente: 'clock';
+	cancelado: 'close-circle';
+};
+
+const InvoiceScreen: React.FC = () => {
 	const param = useLocalSearchParams();
 	console.log('PARAM => ', param);
 	const [loading, setLoading] = useState<boolean>(false);
@@ -27,9 +35,40 @@ const InfractionScreen: React.FC = () => {
 			receita: 'DETRAN',
 			infracao: 'Estacionamento irregular.',
 			municipio: 'São Paulo',
-			vencimento: '2023-10-10'
+			vencimento: '2023-10-10',
+			status: 'cancelado' as PaymentStatus
 		}
 	};
+
+	const statusIconMap: StatusIconMapping = {
+		pago: 'check-circle',
+		pendente: 'clock',
+		cancelado: 'close-circle'
+	};
+
+	const getStatusIcon = () => {
+		const status = mockMultaDetail.detail.status;
+		const iconName = statusIconMap[status];
+		let color;
+
+		switch (status) {
+			case 'pago':
+				color = Colors.success;
+				break;
+			case 'pendente':
+				color = Colors.warning;
+				break;
+			case 'cancelado':
+				color = Colors.danger;
+				break;
+			default:
+				color = Colors.textSecondary;
+		}
+
+		return {icon: iconName, color};
+	};
+
+	const {icon, color} = getStatusIcon();
 
 	return (
 		<View style={styles.container}>
@@ -47,24 +86,33 @@ const InfractionScreen: React.FC = () => {
 						</View>
 
 						<View style={styles.qrContainer}>
-							<Image source={qrcode} style={styles.qrImage} />
-							<ButtonCustom
-								style={styles.copyButton}
-								rounded
-								color={Colors.primary}
-								label="Copiar código"
-								size="small"
-								icon={<MaterialCommunityIcons name={'content-copy'} color={Colors.surface} />}
-								onPress={()=> router.navigate('/payments/invoice')}
-							/>
+							<Image source={qrcode} style={[styles.qrImage, {borderColor: color}]} />
+							<MaterialCommunityIcons name={icon} size={60} color={color} style={styles.statusIcon} />
 						</View>
 
-						<View style={styles.tipsContainer}>
-							<Text style={styles.helper}>1. Acesse seu aplicativo de banco</Text>
-							<Text style={styles.helper}>2. Selecione pagar com QRCODE</Text>
-							<Text style={styles.helper}>3. Aponte a câmera para o código acima, ou copie e cole o código PIX.</Text>
-							<Text style={styles.helper}>4. Aguarde o pagamento ser concluído.</Text>
-						</View>
+						{mockMultaDetail.detail.status === 'pago' ? (
+							<ButtonCustom
+								style={styles.saveButton}
+								rounded
+								color={Colors.primary}
+								label="Salvar ou compartilhar comprovante"
+								size="small"
+								icon={<MaterialCommunityIcons name="share-variant" color={Colors.surface} />}
+							/>
+						) : (
+							<ButtonCustom
+								style={styles.regenerateButton}
+								rounded
+								color={color}
+								label="Voltar e gerar outro QR code"
+								size="small"
+								icon={<MaterialCommunityIcons name="qrcode-scan" color={Colors.surface} />}
+								onPress={() => {
+									router.back();
+									router.back();
+								}}
+							/>
+						)}
 					</View>
 				</View>
 			</ScrollView>
@@ -120,11 +168,6 @@ const styles = StyleSheet.create({
 		lineHeight: 24,
 		textAlign: 'center'
 	},
-	separator: {
-		borderBottomColor: '#E0E0E0',
-		borderBottomWidth: 1,
-		marginVertical: 10
-	},
 	infoContainer: {
 		marginBottom: 15,
 		justifyContent: 'center',
@@ -132,26 +175,28 @@ const styles = StyleSheet.create({
 	},
 	qrContainer: {
 		alignItems: 'center',
-		marginBottom: 15
+		marginBottom: 15,
+		position: 'relative'
 	},
 	qrImage: {
 		width: 150,
 		height: 150,
-		marginBottom: 10
+		opacity: 0.3,
+		borderWidth: 2,
+		borderRadius: 10
 	},
-	copyButton: {
+	statusIcon: {
+		position: 'absolute',
+		top: '30%'
+	},
+	saveButton: {
 		alignSelf: 'center',
-		marginBottom: 20
+		marginTop: 20
 	},
-	tipsContainer: {
-		paddingVertical: 10
-	},
-	helper: {
-		fontSize: 12,
-		lineHeight: 16,
-		color: Colors.textSecondary,
-		marginBottom: 5
+	regenerateButton: {
+		alignSelf: 'center',
+		marginTop: 20
 	}
 });
 
-export default InfractionScreen;
+export default InvoiceScreen;

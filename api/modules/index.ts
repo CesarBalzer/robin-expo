@@ -4,3 +4,4 @@ export {Dpvat} from './dpvat';
 export {Ipva} from './ipva';
 export {InfoVehicle} from './infoVehicle';
 export {Vehicle} from './vehicle';
+export {Payments} from './payments';

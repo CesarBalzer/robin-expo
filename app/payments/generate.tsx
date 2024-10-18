@@ -4,8 +4,6 @@ import VehicleInfo from '@app/components/VehicleInfo';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
 import {Button} from '@app/components';
-import {formatDate} from 'date-fns';
-import {ButtonCustom} from '@app/components/ButtonCustom';
 
 const InfractionScreen: React.FC = () => {
 	const param = useLocalSearchParams();
@@ -14,7 +12,6 @@ const InfractionScreen: React.FC = () => {
 	const router = useRouter();
 
 	const mockMultaDetail = {
-		long_id: 'dd54fe70-5462-4947-93fc-42e4c97e3b21',
 		name: 'Multa por estacionamento irregular',
 		value: 50.0,
 		year: 2023,
@@ -34,6 +31,7 @@ const InfractionScreen: React.FC = () => {
 
 	return (
 		<View style={styles.container}>
+			<Header />
 			<VehicleInfo loading={loading} />
 
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -41,73 +39,24 @@ const InfractionScreen: React.FC = () => {
 					<View style={styles.cardContent}>
 						<Text style={styles.title}>{mockMultaDetail.name}</Text>
 
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Número</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.ait}</Text>
-						</View>
+						
 
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Data da autuação</Text>
-							<Text style={styles.value}>
-								{mockMultaDetail.detail.data && formatDate(new Date(mockMultaDetail.detail.data), 'dd/MM/yyyy HH:ii:ss')}
-							</Text>
-						</View>
 
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Local</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.local}</Text>
-						</View>
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Valor</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.valor}</Text>
-						</View>
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Vencimento</Text>
-							<Text style={styles.value}>{mockMultaDetail.duedate && formatDate(mockMultaDetail.duedate, 'dd/MM/yyyy')}</Text>
-						</View>
-
-						<View style={styles.separator} />
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Guia</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.guia}</Text>
-						</View>
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Infracao</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.infracao}</Text>
-						</View>
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Municipio</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.municipio}</Text>
-						</View>
-
-						<View style={styles.infoContainer}>
-							<Text style={styles.label}>Receita</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.receita}</Text>
-						</View>
 					</View>
 				</View>
 				<View style={styles.cardFooter}>
-					<ButtonCustom
-						fullWidth
-						label="PAGAR"
-						size="medium"
-						onPress={() =>
-							router.push({
-								pathname: `payments/${mockMultaDetail.long_id}`,
-								params: {infraction: 'random', id: mockMultaDetail.long_id}
-							})
-						}
-					/>
+					<Button label='PAGAR' size="medium" />
 				</View>
 			</ScrollView>
 		</View>
 	);
 };
+
+const Header: React.FC = () => (
+	<View style={styles.header}>
+		<Text style={styles.headerText}>QRCode de pagamento</Text>
+	</View>
+);
 
 const styles = StyleSheet.create({
 	container: {
@@ -145,9 +94,7 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: 18,
 		fontWeight: '700',
-		marginVertical: 25,
-		textAlign: 'center',
-		textTransform: 'uppercase',
+		marginBottom: 10,
 		color: Colors.primary
 	},
 	subtitle: {
@@ -179,8 +126,8 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		lineHeight: 24
 	},
-	cardFooter: {
-		paddingVertical: 20
+	cardFooter:{
+		paddingVertical:20
 	}
 });
 

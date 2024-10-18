@@ -1,5 +1,5 @@
 import axios, {AxiosInstance} from 'axios';
-import {Auth, Dpvat, Vehicle} from './modules';
+import {Auth, Dpvat, Payments, Vehicle} from './modules';
 import {Infraction} from './modules/infraction';
 import StorageService from '@app/services/StorageService';
 import {Ipva} from './modules/ipva';
@@ -13,6 +13,9 @@ export default class Service {
 	ipva!: Ipva;
 	info!: InfoVehicle;
 	vehicle!: Vehicle;
+	payments!: Payments;
+
+	private unauthenticatedCallbacks: (() => void)[] = [];
 
 	constructor(baseURL: string) {
 		this.client = axios.create({
@@ -21,6 +24,12 @@ export default class Service {
 
 		this.configureInterceptors(this.client);
 		this.initializeModules(this.client);
+	}
+
+	private async handleUnauthorized() {
+		console.log('Sessão Expirada');
+		await StorageService.remove('access_token');
+		this.unauthenticatedCallbacks.forEach((callback) => callback());
 	}
 
 	private configureInterceptors(instance: AxiosInstance) {
@@ -36,8 +45,19 @@ export default class Service {
 		);
 
 		instance.interceptors.response.use(
-			(response) => response,
-			(error) => Promise.reject(error)
+			async (response) => {
+				if (response.data && response.data.code === '1002') {
+					await this.handleUnauthorized();
+				}
+				return response;
+			},
+			async (error) => {
+				const {response} = error;
+				if (response && response.data && response.data.code === '1002') {
+					await this.handleUnauthorized();
+				}
+				return Promise.reject(error);
+			}
 		);
 	}
 
@@ -48,5 +68,10 @@ export default class Service {
 		this.ipva = new Ipva(client);
 		this.info = new InfoVehicle(client);
 		this.vehicle = new Vehicle(client);
+		this.payments = new Payments(client);
+	}
+
+	public onUnauthenticated(callback: () => void) {
+		this.unauthenticatedCallbacks.push(callback);
 	}
 }

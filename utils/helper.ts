@@ -1,5 +1,19 @@
+import {Colors} from '@app/constants';
 import {parse, isValid, isAfter, isBefore} from 'date-fns';
 const STORAGE_KEY = 'customerUserVDC_';
+
+export const fakerAsync = (seconds = 2000, shouldError = false) =>
+	new Promise<any[]>((resolve, reject) => {
+		setTimeout(() => {
+			if (shouldError) {
+				// Simulando um erro com um objeto similar ao que você recebe
+				reject({code: '1002', error: 'Unauthorized'});
+			} else {
+				// Retorna um array vazio se não houver erro
+				resolve([]);
+			}
+		}, seconds);
+	});
 
 export function decimal(value: number | string, decimals: number = 2): number {
 	const v = parseFloat(String(value || 0).replace(/\D+/g, ''));
@@ -321,6 +335,48 @@ export function applyMask(val: string, pattern: string): string {
 	return pattern.replace(/#/g, () => val[i++] || '');
 }
 
+export const getTextSize = (size: 'small' | 'medium' | 'large'): number => {
+	switch (size) {
+		case 'small':
+			return 12;
+		case 'medium':
+			return 14;
+		case 'large':
+			return 18;
+		default:
+			return 16;
+	}
+};
+
+export const getButtonHeight = (size: 'small' | 'medium' | 'large'): number => {
+	switch (size) {
+		case 'small':
+			return 32;
+		case 'medium':
+			return 48;
+		case 'large':
+			return 64;
+		default:
+			return 48;
+	}
+};
+
+export const getContrastColor = (hex: string): string => {
+	const hexWithoutHash = hex.replace('#', '');
+	const normalizedHex =
+		hexWithoutHash.length === 3
+			? hexWithoutHash
+					.split('')
+					.map((char) => char + char)
+					.join('')
+			: hexWithoutHash;
+
+	const r = parseInt(normalizedHex.substring(0, 2), 16);
+	const g = parseInt(normalizedHex.substring(2, 4), 16);
+	const b = parseInt(normalizedHex.substring(4, 6), 16);
+	const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+	return brightness > 130 ? Colors.text : Colors.textContrast;
+};
 
 export const helper = {
 	decimal,
@@ -361,5 +417,8 @@ export const helper = {
 	maskCnpj,
 	maskCep,
 	mask,
-	applyMask
+	applyMask,
+	getTextSize,
+	getButtonHeight,
+	getContrastColor
 };
