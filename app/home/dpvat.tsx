@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {View, ScrollView, StyleSheet, Text} from 'react-native';
-import VehicleInfo from '@app/components/VehicleInfo';
+import VehicleInfo from '@app/components/vehicle/VehicleInfo';
 import ItemInfo from '@app/components/ItemInfo';
 import Tabs from '@app/components/Tabs';
 import {useRouter} from 'expo-router';
@@ -116,7 +116,7 @@ const DpvatScreen: React.FC = () => {
 	return (
 		<View style={styles.container}>
 			<Header />
-			<VehicleInfo loading={loading} />
+			<VehicleInfo />
 			<Tabs<TabKey> tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
 			<ScrollView style={styles.finesContainer} showsVerticalScrollIndicator={false}>

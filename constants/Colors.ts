@@ -10,5 +10,6 @@ export default {
 	danger: '#F86868',
 	success: '#00E0A8',
 	warning: '#f5dd4b',
-	info: '#4A5DC3'
+	info: '#4A5DC3',
+	disabled: '#CDCDCD'
 };

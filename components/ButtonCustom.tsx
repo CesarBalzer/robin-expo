@@ -12,7 +12,7 @@ interface ButtonCustomProps extends TouchableOpacityProps {
 	icon?: React.ReactNode;
 	iconPosition?: 'left' | 'right' | 'center';
 	fullWidth?: boolean;
-	color?: string; // Novo parâmetro para cor do botão
+	color?: string;
 }
 
 export const ButtonCustom: React.FC<ButtonCustomProps> = ({
@@ -24,7 +24,7 @@ export const ButtonCustom: React.FC<ButtonCustomProps> = ({
 	icon,
 	iconPosition = 'left',
 	fullWidth = false,
-	color = Colors.primary, // Define cor padrão como primary
+	color = Colors.primary,
 	...props
 }) => {
 	const textSize = getTextSize(size);
@@ -32,7 +32,7 @@ export const ButtonCustom: React.FC<ButtonCustomProps> = ({
 	const buttonColor = outline ? 'transparent' : color;
 	const borderColor = outline ? color : buttonColor;
 	const textColor = outline ? color : getContrastColor(buttonColor);
-	const iconColor = getContrastColor(buttonColor);
+	const iconColor = outline ? color : getContrastColor(buttonColor);
 
 	const buttonStyle = [
 		styles.button,

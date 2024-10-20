@@ -7,4 +7,7 @@ export class Vehicle extends Module {
 	fetchAll() {
 		return this.get(`/vehicle/all`);
 	}
+	fetchOrInsert(data: any) {
+		return this.post(`/vehicle/consult`, data);
+	}
 }

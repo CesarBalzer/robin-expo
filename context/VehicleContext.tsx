@@ -3,9 +3,12 @@ import StorageService from '@app/services/StorageService';
 import api from '@app/api';
 
 export type VehicleContextType = {
-	vehicles: any;
 	vehicle: any;
 	setVehicle: (vehicle: any) => void;
+
+	vehicles: any;
+	setVehicles: (vehicles: any) => void;
+
 	loadVehicles: () => Promise<void>;
 };
 
@@ -31,9 +34,9 @@ export const VehicleProvider = ({children}: {children: React.ReactNode}) => {
 	}, []);
 
 	const loadVehicles = useCallback(async () => {
-		if (vehicles) {
-			return;
-		}
+		// if (vehicles) {
+		// 	return;
+		// }
 		const fetchedVehicles = await api.vehicle.fetchAll();
 		setVehicles(fetchedVehicles);
 		await StorageService.storeJson('vehicles', fetchedVehicles);
@@ -42,6 +45,11 @@ export const VehicleProvider = ({children}: {children: React.ReactNode}) => {
 	const setVehicleAndStore = useCallback(async (vehicle: any) => {
 		setVehicle(vehicle);
 		await StorageService.storeJson('selected_vehicle', vehicle);
+	}, []);
+
+	const setVehiclesAndStore = useCallback(async (vehicles: any) => {
+		setVehicles(vehicles);
+		await StorageService.storeJson('vehicles', vehicle);
 	}, []);
 
 	const memoizedVehicles = useMemo(() => vehicles, [vehicles]);
@@ -53,9 +61,10 @@ export const VehicleProvider = ({children}: {children: React.ReactNode}) => {
 	return (
 		<VehicleContext.Provider
 			value={{
-				vehicles: memoizedVehicles,
+				vehicles,
 				vehicle,
 				setVehicle: setVehicleAndStore,
+				setVehicles: setVehiclesAndStore,
 				loadVehicles
 			}}
 		>

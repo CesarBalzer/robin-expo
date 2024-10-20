@@ -17,7 +17,7 @@ import {useAuth} from '@app/hooks/useAuth';
 import {ButtonCustom} from '@app/components/ButtonCustom';
 import {Ionicons} from '@expo/vector-icons';
 import TitleSection from '@app/components/TitleSection';
-import VehicleInfo from '@app/components/VehicleInfo';
+import VehicleWidget from '@app/components/vehicle/VehicleWidget';
 import {useTheme} from '@app/context/ThemeContext';
 import {useVehicle} from '@app/hooks/useVehicle';
 import api from '@app/api';
@@ -25,7 +25,7 @@ import {useModal} from '@app/context/modalcontext';
 import {Input} from '@app/components';
 import {useNavigation} from 'expo-router';
 import {getErrorMessage} from '@app/utils/text';
-import FormVehicle from '@app/components/FormVehicle';
+import VehicleForm from '@app/components/vehicle/VehicleForm';
 
 import {menuItems} from '../menuItems';
 
@@ -36,12 +36,12 @@ const DashboardScreen: React.FC = () => {
 	const [openFormVehicle, setOpenFormVehicle] = useState<boolean>(false);
 	const {logout} = useAuth();
 	const {theme} = useTheme();
-	const {vehicles, vehicle, setVehicle, loadVehicles} = useVehicle();
+	const {vehicles, setVehicles, vehicle, setVehicle, loadVehicles} = useVehicle();
+	// console.log('VEHICLES => ', vehicles);
+	console.log('VEHICLE CONTEXT=> ', vehicle);
 
 	const [listVehicles, setListVehicles] = useState();
-	const {showModal} = useModal();
-
-	
+	const {showModal, hideModal, isFullScreen} = useModal();
 
 	// callbacks
 	const handleSheetChanges = useCallback((index: number) => {
@@ -58,10 +58,13 @@ const DashboardScreen: React.FC = () => {
 
 	useEffect(() => {
 		const fetchVehicles = async () => {
+			// loadVehicles();
+			// setVehicle(null);
+			// setVehicles(null);
 			setLoading(true);
 			try {
 				if (!vehicle) {
-					await handleVehicleAction();
+					await handleVehicles();
 				}
 				// setListVehicles(vehicles);
 			} catch (error) {
@@ -74,16 +77,16 @@ const DashboardScreen: React.FC = () => {
 		fetchVehicles();
 	}, []);
 
-	const handleVehicleAction = async () => {
+	const handleVehicles = async () => {
 		const list = await api.vehicle.fetchAll();
+		console.log('LIST => ', list.vehicles);
+		const {vehicles} = list || {vehicles: null};
+		handleShowModal();
+		setVehicles(vehicles);
+	};
 
-		if (list && list.vehicles) {
-			setListVehicles(list.vehicles);
-		}
-
-		// if (list && !list?.vehicles) {
-		showModal(<FormVehicle />);
-		// }
+	const handleShowModal = () => {
+		showModal(<VehicleForm onClose={hideModal} />);
 	};
 
 	const handleLogout = async () => {
@@ -94,7 +97,7 @@ const DashboardScreen: React.FC = () => {
 		<ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.container}>
 			<View style={styles.infoContainer}>
 				<TitleSection title="Situação do veículo" icon="car-hatchback" iconColor={theme.primary} iconSize={20} />
-				<VehicleInfo vehicles={listVehicles} loading={loading} />
+				<VehicleWidget handleShowModal={handleShowModal} />
 				<TitleSection title="Outras opções" icon="cog" iconColor={theme.primary} iconSize={20} />
 			</View>
 			<Menu items={menuItems} />

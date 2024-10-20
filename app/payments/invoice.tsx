@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Text, Image} from 'react-native';
-import VehicleInfo from '@app/components/VehicleInfo';
+import VehicleInfo from '@app/components/vehicle/VehicleInfo';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
 import {ButtonCustom} from '@app/components/ButtonCustom';
@@ -72,7 +72,7 @@ const InvoiceScreen: React.FC = () => {
 
 	return (
 		<View style={styles.container}>
-			<VehicleInfo loading={loading} />
+			<VehicleInfo />
 
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>
@@ -93,7 +93,6 @@ const InvoiceScreen: React.FC = () => {
 						{mockMultaDetail.detail.status === 'pago' ? (
 							<ButtonCustom
 								style={styles.saveButton}
-								rounded
 								color={Colors.primary}
 								label="Salvar ou compartilhar comprovante"
 								size="small"
@@ -102,7 +101,6 @@ const InvoiceScreen: React.FC = () => {
 						) : (
 							<ButtonCustom
 								style={styles.regenerateButton}
-								rounded
 								color={color}
 								label="Voltar e gerar outro QR code"
 								size="small"

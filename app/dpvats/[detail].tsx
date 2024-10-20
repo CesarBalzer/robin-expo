@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Text} from 'react-native';
-import VehicleInfo from '@app/components/VehicleInfo';
+import VehicleInfo from '@app/components/vehicle/VehicleInfo';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
 import {Button} from '@app/components';
@@ -32,7 +32,7 @@ const InfractionScreen: React.FC = () => {
 	return (
 		<View style={styles.container}>
 			<Header />
-			<VehicleInfo loading={loading} />
+			<VehicleInfo />
 
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>

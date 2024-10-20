@@ -81,6 +81,7 @@ export default function RegistrationPage() {
 					placeholder="Nome completo"
 					onChangeText={(value) => handleForm('name', value)}
 					value={formData?.name}
+					size={'fullWidth'}
 				/>
 
 				<Input
@@ -91,6 +92,7 @@ export default function RegistrationPage() {
 					placeholder="exemplo@email.com"
 					onChangeText={(value) => handleForm('email', value)}
 					value={formData?.email}
+					size={'fullWidth'}
 				/>
 
 				<Input
@@ -102,6 +104,7 @@ export default function RegistrationPage() {
 					secureTextEntry
 					onChangeText={(value) => handleForm('password', value)}
 					value={formData?.password}
+					size={'fullWidth'}
 				/>
 
 				<Input
@@ -113,6 +116,7 @@ export default function RegistrationPage() {
 					secureTextEntry
 					onChangeText={(value) => handleForm('password_confirmation', value)}
 					value={formData?.password_confirmation}
+					size={'fullWidth'}
 				/>
 
 				<Pressable onPress={() => setChecked(!checked)} style={styles.terms}>

@@ -1,26 +1,39 @@
 import React from 'react';
-import {View, StyleSheet, Button} from 'react-native';
-import {Modal} from 'react-native';
+import {View, StyleSheet, Modal, TouchableOpacity} from 'react-native';
+import {MaterialIcons} from '@expo/vector-icons';
 
 interface CustomModalProps {
 	visible: boolean;
 	onClose: () => void;
 	onCloseBackdrop?: () => void;
 	content: React.ReactNode;
+	fullScreen?: boolean;
+	showCloseButton?: boolean;
 }
 
-const CustomModal: React.FC<CustomModalProps> = ({visible, onClose, onCloseBackdrop, content}) => {
+const CustomModal: React.FC<CustomModalProps> = ({
+	visible,
+	onClose,
+	onCloseBackdrop,
+	content,
+	fullScreen = false,
+	showCloseButton = false
+}) => {
 	return (
-		<Modal visible={visible} transparent animationType="slide">
-			<View style={styles.backdrop} onTouchEnd={onCloseBackdrop}>
-				<View style={styles.modalContent}>
-					{content}
-					<View style={styles.buttonContainer}>
-						<Button title="Fechar" onPress={onClose} />
+		<>
+			<Modal visible={visible} animationType="slide" presentationStyle={fullScreen ? 'fullScreen' : 'formSheet'}>
+				<View style={styles.backdrop} onTouchEnd={onCloseBackdrop}>
+					<View style={[styles.modalContent]}>
+						{showCloseButton && (
+							<TouchableOpacity style={styles.closeButton} onPress={onClose}>
+								<MaterialIcons name="close" size={24} color="black" />
+							</TouchableOpacity>
+						)}
+						{content}
 					</View>
 				</View>
-			</View>
-		</Modal>
+			</Modal>
+		</>
 	);
 };
 
@@ -28,21 +41,32 @@ const styles = StyleSheet.create({
 	backdrop: {
 		flex: 1,
 		justifyContent: 'center',
-		alignItems: 'center',
-		backgroundColor: 'rgba(225, 225, 225, 0.85)'
+		alignItems: 'center'
 	},
 	modalContent: {
-		width: '80%',
-		maxHeight: '60%',
+		flex: 1,
 		padding: 20,
-		backgroundColor: 'white',
-		borderRadius: 10,
-		alignItems: 'center',
-		shadowColor: '#000',
-		shadowOffset: {width: 0, height: 2},
-		shadowOpacity: 0.25,
-		shadowRadius: 4,
-		elevation: 5
+		width: '100%'
+	},
+	fullScreenModal: {
+		width: '100%',
+		height: '100%',
+		borderRadius: 0,
+		justifyContent: 'center',
+		padding: 10
+	},
+	defaultModal: {
+		padding: 20
+	},
+	contentContainer: {
+		width: '100%',
+		alignItems: 'center'
+	},
+	closeButton: {
+		position: 'absolute',
+		top: 10,
+		right: 10,
+		zIndex: 1
 	},
 	buttonContainer: {
 		marginTop: 15

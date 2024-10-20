@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {View, ScrollView, StyleSheet, Text, Image} from 'react-native';
-import VehicleInfo from '@app/components/VehicleInfo';
+import VehicleInfo from '@app/components/vehicle/VehicleInfo';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
 import {ButtonCustom} from '@app/components/ButtonCustom';
@@ -33,7 +33,7 @@ const InfractionScreen: React.FC = () => {
 
 	return (
 		<View style={styles.container}>
-			<VehicleInfo loading={loading} />
+			<VehicleInfo />
 
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>
@@ -50,7 +50,6 @@ const InfractionScreen: React.FC = () => {
 							<Image source={qrcode} style={styles.qrImage} />
 							<ButtonCustom
 								style={styles.copyButton}
-								rounded
 								color={Colors.primary}
 								label="Copiar código"
 								size="small"
