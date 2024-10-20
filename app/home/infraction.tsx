@@ -135,7 +135,7 @@ const InfractionScreen: React.FC = () => {
 											isPaid={isPaid}
 											isOverdue={isOverdue}
 											onPress={() =>
-												router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})
+												router.push({pathname: `infractions/${fine.long_id}`})
 											}
 										/>
 									);

@@ -1,36 +1,40 @@
-import React, {useState} from 'react';
-import {View, ScrollView, StyleSheet, Text} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, ScrollView, StyleSheet, Text, Alert} from 'react-native';
 import VehicleInfo from '@app/components/vehicle/VehicleInfo';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Colors} from '@app/constants';
-import {Button} from '@app/components';
 import {formatDate} from 'date-fns';
 import {ButtonCustom} from '@app/components/ButtonCustom';
+import {getErrorMessage} from '@app/utils/text';
+import api from '@app/api';
+import {IInfraction} from '@app/types/IInfraction';
 
 const InfractionScreen: React.FC = () => {
 	const param = useLocalSearchParams();
-	console.log('PARAM => ', param);
+	const {detail} = param;
 	const [loading, setLoading] = useState<boolean>(false);
 	const router = useRouter();
+	const [infraction, setInfraction] = useState<IInfraction>();
 
-	const mockMultaDetail = {
-		long_id: 'dd54fe70-5462-4947-93fc-42e4c97e3b21',
-		name: 'Multa por estacionamento irregular',
-		value: 50.0,
-		year: 2023,
-		duedate: '2023-10-10',
-		detail: {
-			ait: 'AA01690791',
-			data: '2023-06-13 19:43:00',
-			guia: '180187820',
-			local: 'AV. CARLOS CALDEIRA FILHO, SN',
-			valor: 'R$ 50,00',
-			receita: 'DETRAN',
-			infracao: 'Estacionamento irregular.',
-			municipio: 'São Paulo',
-			vencimento: '2023-10-10'
-		}
-	};
+	useEffect(() => {
+		(async () => {
+			setLoading(true);
+			try {
+				const response = await api.infraction.fetch(String(detail));
+				const multa = response.multa;
+
+				const selectedMulta = multa.find((item: any) => item.long_id === String(detail));
+
+				console.log('SELECTED MULTA => ', selectedMulta);
+
+				setInfraction(selectedMulta);
+			} catch (error) {
+				Alert.alert('Erro', getErrorMessage(error));
+			} finally {
+				setLoading(false);
+			}
+		})();
+	}, []);
 
 	return (
 		<View style={styles.container}>
@@ -39,55 +43,55 @@ const InfractionScreen: React.FC = () => {
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>
 					<View style={styles.cardContent}>
-						<Text style={styles.title}>{mockMultaDetail.name}</Text>
+						<Text style={styles.title}>{infraction?.name}</Text>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Número</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.ait}</Text>
+							<Text style={styles.value}>{infraction?.detail.ait}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Data da autuação</Text>
 							<Text style={styles.value}>
-								{mockMultaDetail.detail.data && formatDate(new Date(mockMultaDetail.detail.data), 'dd/MM/yyyy HH:ii:ss')}
+								{infraction?.detail.data && formatDate(new Date(infraction?.detail.data), 'dd/MM/yyyy HH:ii:ss')}
 							</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Local</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.local}</Text>
+							<Text style={styles.value}>{infraction?.detail.local}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Valor</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.valor}</Text>
+							<Text style={styles.value}>{infraction?.detail.valor}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Vencimento</Text>
-							<Text style={styles.value}>{mockMultaDetail.duedate && formatDate(mockMultaDetail.duedate, 'dd/MM/yyyy')}</Text>
+							<Text style={styles.value}>{infraction?.duedate && formatDate(infraction?.duedate, 'dd/MM/yyyy')}</Text>
 						</View>
 
 						<View style={styles.separator} />
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Guia</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.guia}</Text>
+							<Text style={styles.value}>{infraction?.detail.guia}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Infracao</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.infracao}</Text>
+							<Text style={styles.value}>{infraction?.detail.infracao}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Municipio</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.municipio}</Text>
+							<Text style={styles.value}>{infraction?.detail.municipio}</Text>
 						</View>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Receita</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.receita}</Text>
+							<Text style={styles.value}>{infraction?.detail.receita}</Text>
 						</View>
 					</View>
 				</View>
@@ -98,8 +102,8 @@ const InfractionScreen: React.FC = () => {
 						size="medium"
 						onPress={() =>
 							router.push({
-								pathname: `payments/${mockMultaDetail.long_id}`,
-								params: {infraction: 'random', id: mockMultaDetail.long_id}
+								pathname: `payments/${infraction?.long_id}`,
+								params: {infraction: 'random', id: infraction?.long_id}
 							})
 						}
 					/>

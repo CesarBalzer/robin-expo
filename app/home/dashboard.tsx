@@ -38,7 +38,7 @@ const DashboardScreen: React.FC = () => {
 	const {theme} = useTheme();
 	const {vehicles, setVehicles, vehicle, setVehicle, loadVehicles} = useVehicle();
 	// console.log('VEHICLES => ', vehicles);
-	console.log('VEHICLE CONTEXT=> ', vehicle);
+	// console.log('VEHICLE CONTEXT=> ', vehicle);
 
 	const [listVehicles, setListVehicles] = useState();
 	const {showModal, hideModal, isFullScreen} = useModal();
