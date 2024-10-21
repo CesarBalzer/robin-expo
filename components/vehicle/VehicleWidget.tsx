@@ -11,6 +11,8 @@ import {formatDate} from 'date-fns';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import VehicleList from './VehicleList';
 import api from '@app/api';
+import ContentLoader, {Rect} from 'react-content-loader/native';
+import SkeletonLoader from '../SkeletonLoader';
 
 interface VehiclesProps {
 	loading?: boolean;
@@ -68,19 +70,25 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 			}, 5000);
 		}
 	};
-
 	return (
 		<View style={styles.vehicleInfoContainer}>
-			<View style={styles.plateContainer}>
-				<VehiclePlate plateNumber={vehicle?.plate || ''} />
-			</View>
-			{vehicle?.name && <TitleHeader title={vehicle?.name || ''} align={'center'} />}
-			{vehicle && getStatusBadge(vehicle.last_query_status as keyof typeof statusConfig)}
+			{loading && <SkeletonLoader type="vehicle" />}
+			{!loading && (
+				<>
+					<View style={styles.plateContainer}>
+						<VehiclePlate plateNumber={vehicle?.plate || ''} />
+					</View>
 
-			{vehicle && (
-				<Text style={styles.helper}>
-					Atualizado em: {vehicle.updated_at && formatDate(vehicle.updated_at, 'dd/MM/yyyy HH:mm:ss')}
-				</Text>
+					{vehicle?.name && <TitleHeader title={vehicle?.name || ''} align="center" />}
+
+					{vehicle && getStatusBadge(vehicle.last_query_status as keyof typeof statusConfig)}
+
+					{vehicle && (
+						<Text style={styles.helper}>
+							Atualizado em: {vehicle.updated_at && formatDate(vehicle.updated_at, 'dd/MM/yyyy HH:mm')}
+						</Text>
+					)}
+				</>
 			)}
 			<View style={styles.containerButton}>
 				{vehicles && (
