@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "robim-expo",
-    "slug": "robim-expo",
+    "name": "Robim",
+    "slug": "robim",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,7 +28,20 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/FEEngschrift.otf",
+            "./assets/fonts/GillSansStdCondensed.otf",
+            "./assets/fonts/WorkSans.ttf"
+          ]
+        }
+      ],
       "expo-router"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
     ]
   }
 }
