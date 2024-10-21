@@ -9,11 +9,13 @@ import {formatCurrency} from '@app/utils/helper';
 import {formatDate} from 'date-fns';
 import {IInfraction} from '@app/types/IInfraction';
 import Alert from '@app/components/Alert';
+import {useVehicle} from '@app/hooks/useVehicle';
 
 type TabKey = 'open' | 'paid';
 
 const InfractionScreen: React.FC = () => {
 	const router = useRouter();
+	const {vehicle, setVehicles} = useVehicle();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [activeTab, setActiveTab] = useState<TabKey>('open');
 	const tabs: {key: TabKey; label: string}[] = [
@@ -30,11 +32,11 @@ const InfractionScreen: React.FC = () => {
 	}, []);
 
 	const loadData = async () => {
-		const id = 'dd54fe70-5462-4947-93fc-42e4c97e3b21';
+		const id = '';
 		try {
 			setLoading(true);
 			setErrorMessage(null);
-			const response = await api.infraction.fetch(id);
+			const response = await api.infraction.fetch(vehicle.long_id);
 
 			console.log('RESPONSE => ', response);
 
@@ -134,9 +136,7 @@ const InfractionScreen: React.FC = () => {
 											helper={formatDate(dueDate, 'dd/MM/yyyy')}
 											isPaid={isPaid}
 											isOverdue={isOverdue}
-											onPress={() =>
-												router.push({pathname: `infractions/${fine.long_id}`})
-											}
+											onPress={() => router.push({pathname: `infractions/${fine.long_id}`})}
 										/>
 									);
 								})

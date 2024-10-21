@@ -1,16 +1,5 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {
-	View,
-	ScrollView,
-	Image,
-	BackHandler,
-	Dimensions,
-	StyleSheet,
-	KeyboardAvoidingView,
-	Alert,
-	Platform,
-	Text
-} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {View, ScrollView, Image, BackHandler, Dimensions, StyleSheet} from 'react-native';
 import Menu from '@app/components/MenuCard';
 import {banner_home} from '@app/assets';
 import {useAuth} from '@app/hooks/useAuth';
@@ -22,9 +11,6 @@ import {useTheme} from '@app/context/ThemeContext';
 import {useVehicle} from '@app/hooks/useVehicle';
 import api from '@app/api';
 import {useModal} from '@app/context/modalcontext';
-import {Input} from '@app/components';
-import {useNavigation} from 'expo-router';
-import {getErrorMessage} from '@app/utils/text';
 import VehicleForm from '@app/components/vehicle/VehicleForm';
 
 import {menuItems} from '../menuItems';
@@ -33,20 +19,10 @@ const {width} = Dimensions.get('window');
 
 const DashboardScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
-	const [openFormVehicle, setOpenFormVehicle] = useState<boolean>(false);
 	const {logout} = useAuth();
 	const {theme} = useTheme();
-	const {vehicles, setVehicles, vehicle, setVehicle, loadVehicles} = useVehicle();
-	// console.log('VEHICLES => ', vehicles);
-	// console.log('VEHICLE CONTEXT=> ', vehicle);
-
-	const [listVehicles, setListVehicles] = useState();
-	const {showModal, hideModal, isFullScreen} = useModal();
-
-	// callbacks
-	const handleSheetChanges = useCallback((index: number) => {
-		console.log('handleSheetChanges', index);
-	}, []);
+	const {setVehicles, vehicle} = useVehicle();
+	const {showModal, hideModal} = useModal();
 
 	useEffect(() => {
 		const backAction = () => {
@@ -58,15 +34,11 @@ const DashboardScreen: React.FC = () => {
 
 	useEffect(() => {
 		const fetchVehicles = async () => {
-			// loadVehicles();
-			// setVehicle(null);
-			// setVehicles(null);
 			setLoading(true);
 			try {
 				if (!vehicle) {
 					await handleVehicles();
 				}
-				// setListVehicles(vehicles);
 			} catch (error) {
 				console.error('Erro ao carregar veículos:', error);
 			} finally {

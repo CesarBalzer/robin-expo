@@ -25,7 +25,6 @@ const VehicleList = ({vehicles, setVehicle}: {vehicles: any; setVehicle: any}) =
 						createdAt={item.created_at}
 						updatedAt={item.updated_at}
 						onSelect={() => {
-							console.log('SETVEHICLE => ', item);
 							setVehicle(item);
 							hideModal();
 						}}

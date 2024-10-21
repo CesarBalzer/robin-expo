@@ -7,111 +7,74 @@ import {useRouter} from 'expo-router';
 import api from '@app/api';
 import {formatCurrency} from '@app/utils/helper';
 import {formatDate} from 'date-fns';
+import {IInfraction} from '@app/types/IInfraction';
+import Alert from '@app/components/Alert';
+import {useVehicle} from '@app/hooks/useVehicle';
 
 type TabKey = 'open' | 'paid';
 
 const DpvatScreen: React.FC = () => {
 	const router = useRouter();
+	const {vehicle, setVehicles} = useVehicle();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [activeTab, setActiveTab] = useState<TabKey>('open');
 	const tabs: {key: TabKey; label: string}[] = [
-		{key: 'open', label: 'Multas em Aberto'},
-		{key: 'paid', label: 'Multas Pagas'}
+		{key: 'open', label: 'Em Aberto'},
+		{key: 'paid', label: 'Pagos'}
 	];
-	const [infractions, setInfractions] = useState();
+	const [data, setData] = useState<IInfraction[]>([]);
+	const [openInfractions, setOpenInfractions] = useState<IInfraction[]>([]);
+	const [paidInfractions, setPaidInfractions] = useState<IInfraction[]>([]);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	useEffect(() => {
-		(async () => {
-			loadData();
-		})();
+		loadData();
 	}, []);
 
 	const loadData = async () => {
-		const id = 'dd54fe70-5462-4947-93fc-42e4c97e3b21';
+		const id = '';
 		try {
-			const response = await api.infraction.fetch(id);
+			setLoading(true);
+			setErrorMessage(null);
+			const response = await api.dpvat.fetch(vehicle.long_id);
+
 			console.log('RESPONSE => ', response);
-			// setInfractions(response.multas);
-		} catch (error) {}
+
+			if (response.error) {
+				setErrorMessage(`Erro ${response.code}: ${response.error}`);
+				setData([]);
+				setOpenInfractions([]);
+				setPaidInfractions([]);
+			} else {
+				setData(response.multa);
+				setOpenInfractions(handleOpenInfractions(response.multa));
+				setPaidInfractions(handlePaidInfractions(response.multa));
+			}
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Erro inesperado ao carregar o dpvat.');
+			setData([]);
+			setOpenInfractions([]);
+			setPaidInfractions([]);
+		} finally {
+			setLoading(false);
+		}
 	};
 
-	const openFinesMock = [
-		{
-			long_id: 1,
-			name: 'Multa por excesso de beleza',
-			value: 1234.0,
-			year: 2029,
-			duedate: '2029-11-30',
-			detail: {
-				ait: 'AA12345678',
-				data: '2029-11-01 12:00:00',
-				guia: '123456789',
-				local: 'Rua da Beleza, 123',
-				valor: 'R$ 1.234,00',
-				receita: 'DETRAN',
-				infracao: 'Excesso de beleza',
-				municipio: 'São Paulo',
-				vencimento: '2029-11-30'
-			}
-		},
-		{
-			long_id: 2,
-			name: 'Multa por excesso de velocidade',
-			value: 200.0,
-			year: 2022,
-			duedate: '2022-11-30',
-			detail: {
-				ait: 'AA23456789',
-				data: '2022-11-01 14:00:00',
-				guia: '987654321',
-				local: 'Av. Rápida, 456',
-				valor: 'R$ 200,00',
-				receita: 'DETRAN',
-				infracao: 'Excesso de velocidade',
-				municipio: 'Rio de Janeiro',
-				vencimento: '2022-11-30'
-			}
-		},
-		{
-			long_id: 3,
-			name: 'Multa por não uso do cinto',
-			value: 100.0,
-			year: 2022,
-			duedate: '2022-12-05',
-			detail: {
-				ait: 'AA34567890',
-				data: '2022-12-01 10:00:00',
-				guia: '112233445',
-				local: 'Rua da Segurança, 789',
-				valor: 'R$ 100,00',
-				receita: 'DETRAN',
-				infracao: 'Não uso do cinto',
-				municipio: 'Curitiba',
-				vencimento: '2022-12-05'
-			}
-		}
-	];
+	const handleOpenInfractions = (data: IInfraction[]): IInfraction[] => {
+		return data.filter((fine) => {
+			const dueDate = new Date(fine.detail.vencimento);
+			return dueDate >= new Date() || !fine.detail.vencimento;
+		});
+	};
 
-	const paidFinesMock = [
-		{
-			long_id: 4,
-			name: 'Multa por estacionamento irregular',
-			value: 50.0,
-			year: 2024,
-			duedate: '2024-10-10',
-			detail: {
-				ait: 'AA45678901',
-				data: '2024-06-13 19:43:00',
-				guia: '180187820',
-				local: 'AV. CARLOS CALDEIRA FILHO, SN',
-				valor: 'R$ 50,00',
-				receita: 'DETRAN',
-				infracao: 'Estacionamento irregular.',
-				municipio: 'São Paulo',
-				vencimento: '2024-10-10'
-			}
-		}
-	];
+	const handlePaidInfractions = (data: IInfraction[]): IInfraction[] => {
+		return data.filter((fine) => {
+			const dueDate = new Date(fine.detail.vencimento);
+			const isPaid = false;
+			return dueDate < new Date() && !isPaid;
+		});
+	};
 
 	return (
 		<View style={styles.container}>
@@ -120,34 +83,66 @@ const DpvatScreen: React.FC = () => {
 			<Tabs<TabKey> tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
 			<ScrollView style={styles.finesContainer} showsVerticalScrollIndicator={false}>
-				{activeTab === 'open' &&
-					openFinesMock.map((fine, index) => (
-						<ItemInfo
-							key={index}
-							title={fine.name}
-							subtitle={formatCurrency(fine.value)}
-							helper={formatDate(new Date(fine.duedate), 'dd/MM/yyyy')}
-							isPaid={false}
-							isOverdue={true}
-							onPress={() =>
-								router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})
-							}
-						/>
-					))}
-				{activeTab === 'paid' &&
-					paidFinesMock.map((fine, index) => (
-						<ItemInfo
-							key={index}
-							title={fine.name}
-							subtitle={formatCurrency(fine.value)}
-							helper={formatDate(new Date(fine.duedate), 'dd/MM/yyyy')}
-							isPaid={false}
-							isOverdue={true}
-							onPress={() =>
-								router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})
-							}
-						/>
-					))}
+				{errorMessage ? (
+					<Alert
+						message={errorMessage}
+						color="green"
+						iconPosition="right"
+						closable={true}
+						autoclose={true}
+						autocloseTime={3000}
+						onClose={() => console.log('Alert closed')}
+					/>
+				) : (
+					<>
+						{activeTab === 'open' &&
+							(openInfractions.length === 0 ? (
+								<Alert message="Não existem multas em aberto no momento." />
+							) : (
+								openInfractions.map((fine, index) => {
+									const dueDate = new Date(fine.duedate);
+									const isPaid = false;
+									const isOverdue = dueDate < new Date() && !isPaid;
+
+									return (
+										<ItemInfo
+											key={index}
+											title={fine.name}
+											subtitle={formatCurrency(fine.value)}
+											helper={formatDate(dueDate, 'dd/MM/yyyy')}
+											isPaid={isPaid}
+											isOverdue={isOverdue}
+											onPress={() =>
+												router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})
+											}
+										/>
+									);
+								})
+							))}
+						{activeTab === 'paid' &&
+							(paidInfractions.length === 0 ? (
+								<Alert message="Não existem multas pagas no momento." />
+							) : (
+								paidInfractions.map((fine, index) => {
+									const dueDate = new Date(fine.duedate);
+									const isPaid = true;
+									const isOverdue = dueDate < new Date() && !isPaid;
+
+									return (
+										<ItemInfo
+											key={index}
+											title={fine.name}
+											subtitle={formatCurrency(fine.value)}
+											helper={formatDate(dueDate, 'dd/MM/yyyy')}
+											isPaid={isPaid}
+											isOverdue={isOverdue}
+											onPress={() => router.push({pathname: `infractions/${fine.long_id}`})}
+										/>
+									);
+								})
+							))}
+					</>
+				)}
 			</ScrollView>
 		</View>
 	);

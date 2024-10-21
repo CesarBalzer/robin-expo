@@ -11,7 +11,6 @@ import {formatDate} from 'date-fns';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import VehicleList from './VehicleList';
 import api from '@app/api';
-import ContentLoader, {Rect} from 'react-content-loader/native';
 import SkeletonLoader from '../SkeletonLoader';
 
 interface VehiclesProps {
@@ -52,7 +51,24 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 	);
 
 	const handleModal = () => {
-		showModal(<VehicleList vehicles={vehicles} setVehicle={setVehicle} />);
+		showModal(<VehicleList vehicles={vehicles} setVehicle={setNewVehicle} />);
+	};
+
+	const setNewVehicle = async (vehicle:any) => {
+		console.log('ID => ', vehicle);
+		setLoading(true);
+		try {
+			const response = await api.vehicle.fetch(vehicle.long_id);
+			if (response && response.vehicle) {
+				setVehicle(response.vehicle);
+			}
+		} catch (error) {
+			console.log('ERROR => ', error);
+		} finally {
+			setTimeout(() => {
+				setLoading(false);
+			}, 1000);
+		}
 	};
 
 	const updatedVehicleInfo = async (id: string) => {
@@ -70,6 +86,7 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 			}, 5000);
 		}
 	};
+
 	return (
 		<View style={styles.vehicleInfoContainer}>
 			{loading && <SkeletonLoader type="vehicle" />}
@@ -95,7 +112,7 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 					<ButtonCustom
 						label="Trocar veículo"
 						outline
-						disabled={loading}
+						loading={loading}
 						size="small"
 						onPress={handleModal}
 						style={styles.button}
