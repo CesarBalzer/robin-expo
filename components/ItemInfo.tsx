@@ -4,15 +4,16 @@ import {MaterialIcons} from '@expo/vector-icons';
 import {Colors} from '@app/constants';
 
 interface ItemInfoProps {
-	title: string;
+	title: string | number;
 	subtitle: string;
 	helper: string;
+	helperPrefix?: string;
 	isPaid: boolean;
 	isOverdue: boolean;
 	onPress: () => void;
 }
 
-const ItemInfo: React.FC<ItemInfoProps> = ({title, subtitle, helper, isPaid, isOverdue, onPress}) => {
+const ItemInfo: React.FC<ItemInfoProps> = ({title, subtitle, helper, helperPrefix = '', isPaid, isOverdue, onPress}) => {
 	const getHelperTextColor = () => {
 		if (isPaid) {
 			return Colors.success;
@@ -28,7 +29,11 @@ const ItemInfo: React.FC<ItemInfoProps> = ({title, subtitle, helper, isPaid, isO
 			<View style={styles.itemInfo}>
 				<Text style={styles.itemTitle}>{title}</Text>
 				<Text style={styles.itemSubtitle}>{subtitle}</Text>
-				<Text style={[styles.itemHelper, {color: getHelperTextColor()}]}>{helper}</Text>
+				<Text style={[styles.itemHelper, {color: getHelperTextColor()}]}>
+					{helperPrefix}
+					{''}
+					{helper}
+				</Text>
 			</View>
 			<View style={styles.itemIcon}>
 				<TouchableOpacity style={styles.button} onPress={onPress}>

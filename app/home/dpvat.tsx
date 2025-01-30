@@ -10,8 +10,30 @@ import {formatDate} from 'date-fns';
 import {IInfraction} from '@app/types/IInfraction';
 import Alert from '@app/components/Alert';
 import {useVehicle} from '@app/hooks/useVehicle';
+import {IDpvat} from '@app/types/IDpvat';
 
 type TabKey = 'open' | 'paid';
+
+const mockDpvat = [
+	{
+		long_id: '12345678',
+		name: 'DPVAT -  Danos Pessoais Causados por Veículos Automotores de Vias Terrestres',
+		value: 500,
+		year: 2025,
+		duedate: '2025-02-10',
+		detail: {},
+		status: 'pendente'
+	},
+	{
+		long_id: '12345679',
+		name: 'DPVAT -  Danos Pessoais Causados por Veículos Automotores de Vias Terrestres',
+		value: 1000,
+		year: 2024,
+		duedate: '2024-02-10',
+		detail: {},
+		status: 'pago'
+	}
+];
 
 const DpvatScreen: React.FC = () => {
 	const router = useRouter();
@@ -22,13 +44,13 @@ const DpvatScreen: React.FC = () => {
 		{key: 'open', label: 'Em Aberto'},
 		{key: 'paid', label: 'Pagos'}
 	];
-	const [data, setData] = useState<IInfraction[]>([]);
-	const [openInfractions, setOpenInfractions] = useState<IInfraction[]>([]);
-	const [paidInfractions, setPaidInfractions] = useState<IInfraction[]>([]);
+	const [data, setData] = useState<IDpvat[]>(mockDpvat);
+	const [opens, setOpens] = useState<IDpvat[]>([mockDpvat[0]]);
+	const [paids, setPaids] = useState<IDpvat[]>([mockDpvat[1]]);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
 	useEffect(() => {
-		loadData();
+		// loadData();
 	}, []);
 
 	const loadData = async () => {
@@ -40,40 +62,46 @@ const DpvatScreen: React.FC = () => {
 
 			console.log('RESPONSE => ', response);
 
-			if (response.error) {
-				setErrorMessage(`Erro ${response.code}: ${response.error}`);
-				setData([]);
-				setOpenInfractions([]);
-				setPaidInfractions([]);
-			} else {
-				setData(response.multa);
-				setOpenInfractions(handleOpenInfractions(response.multa));
-				setPaidInfractions(handlePaidInfractions(response.multa));
-			}
+			// if (response.error) {
+			// 	setErrorMessage(`Erro ${response.code}: ${response.error}`);
+			// 	setData([]);
+			// 	setOpens([]);
+			// 	setPaids([]);
+			// } else {
+			// 	setData(response.multa);
+			// 	setOpens(handleOpens(response.multa));
+			// 	setPaids(handlePaids(response.multa));
+			// }
 		} catch (error) {
 			console.error(error);
 			setErrorMessage('Erro inesperado ao carregar o dpvat.');
 			setData([]);
-			setOpenInfractions([]);
-			setPaidInfractions([]);
+			setOpens([]);
+			setPaids([]);
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleOpenInfractions = (data: IInfraction[]): IInfraction[] => {
-		return data.filter((fine) => {
-			const dueDate = new Date(fine.detail.vencimento);
-			return dueDate >= new Date() || !fine.detail.vencimento;
-		});
+	const handleOpens = (data: IDpvat[]): IDpvat[] => {
+		return (
+			data &&
+			data.filter((fine) => {
+				const dueDate = new Date(fine.detail.vencimento);
+				return dueDate >= new Date() || !fine.detail.vencimento;
+			})
+		);
 	};
 
-	const handlePaidInfractions = (data: IInfraction[]): IInfraction[] => {
-		return data.filter((fine) => {
-			const dueDate = new Date(fine.detail.vencimento);
-			const isPaid = false;
-			return dueDate < new Date() && !isPaid;
-		});
+	const handlePaids = (data: IDpvat[]): IDpvat[] => {
+		return (
+			data &&
+			data.filter((fine) => {
+				const dueDate = new Date(fine.detail.vencimento);
+				const isPaid = false;
+				return dueDate < new Date() && !isPaid;
+			})
+		);
 	};
 
 	return (
@@ -96,47 +124,74 @@ const DpvatScreen: React.FC = () => {
 				) : (
 					<>
 						{activeTab === 'open' &&
-							(openInfractions.length === 0 ? (
-								<Alert message="Não existem multas em aberto no momento." />
+							(!opens ? (
+								<Alert message="Não existem débitos de DPVAT em aberto no momento." />
 							) : (
-								openInfractions.map((fine, index) => {
-									const dueDate = new Date(fine.duedate);
+								opens &&
+								opens.map((item, index) => {
+									const dueDate = item.duedate ? new Date(item.duedate) : new Date(0);
+
 									const isPaid = false;
 									const isOverdue = dueDate < new Date() && !isPaid;
 
 									return (
 										<ItemInfo
 											key={index}
-											title={fine.name}
-											subtitle={formatCurrency(fine.value)}
+											title={item.year}
+											subtitle={formatCurrency(item.value)}
 											helper={formatDate(dueDate, 'dd/MM/yyyy')}
+											helperPrefix="Data de vencimento: "
 											isPaid={isPaid}
 											isOverdue={isOverdue}
 											onPress={() =>
-												router.push({pathname: `infractions/${fine.long_id}`, params: {infraction: 'random', id: fine.long_id}})
+												router.push({
+													pathname: `dpvats/${item.long_id}`,
+													params: {
+														id: item.long_id,
+														title: item.name,
+														subtitle: item.year,
+														value: formatCurrency(item.value),
+														duedate: formatDate(dueDate, 'dd/MM/yyyy'),
+														status: 'pendente'
+													}
+												})
 											}
 										/>
 									);
 								})
 							))}
 						{activeTab === 'paid' &&
-							(paidInfractions.length === 0 ? (
-								<Alert message="Não existem multas pagas no momento." />
+							(!paids ? (
+								<Alert message="Não existem débitos de DPVAT pagos no momento." />
 							) : (
-								paidInfractions.map((fine, index) => {
-									const dueDate = new Date(fine.duedate);
+								paids &&
+								paids.map((item, index) => {
+									const dueDate = item.duedate ? new Date(item.duedate) : new Date(0);
 									const isPaid = true;
 									const isOverdue = dueDate < new Date() && !isPaid;
 
 									return (
 										<ItemInfo
 											key={index}
-											title={fine.name}
-											subtitle={formatCurrency(fine.value)}
+											title={item.year}
+											subtitle={formatCurrency(item.value)}
 											helper={formatDate(dueDate, 'dd/MM/yyyy')}
+											helperPrefix="Data de pagamento: "
 											isPaid={isPaid}
 											isOverdue={isOverdue}
-											onPress={() => router.push({pathname: `infractions/${fine.long_id}`})}
+											onPress={() =>
+												router.push({
+													pathname: `dpvats/${item.long_id}`,
+													params: {
+														id: item.long_id,
+														title: item.name,
+														subtitle: item.year,
+														value: formatCurrency(item.value),
+														duedate: formatDate(dueDate, 'dd/MM/yyyy'),
+														status: 'pago'
+													}
+												})
+											}
 										/>
 									);
 								})
@@ -150,7 +205,7 @@ const DpvatScreen: React.FC = () => {
 
 const Header: React.FC = () => (
 	<View style={styles.header}>
-		<Text style={styles.headerText}>Infrações - Multas</Text>
+		<Text style={styles.headerText}>DPVAT</Text>
 	</View>
 );
 

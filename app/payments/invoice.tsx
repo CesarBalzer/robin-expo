@@ -7,8 +7,6 @@ import {ButtonCustom} from '@app/components/ButtonCustom';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import {qrcode} from '@app/assets';
 
-type PaymentStatus = 'pago' | 'pendente' | 'cancelado';
-// Tipos para ícones
 type StatusIconMapping = {
 	pago: 'check-circle';
 	pendente: 'clock';
@@ -21,25 +19,6 @@ const InvoiceScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const router = useRouter();
 
-	const mockMultaDetail = {
-		name: 'Multa por estacionamento irregular',
-		value: 50.0,
-		year: 2023,
-		duedate: '2023-10-10',
-		detail: {
-			ait: 'AA01690791',
-			data: '2023-06-13 19:43:00',
-			guia: '180187820',
-			local: 'AV. CARLOS CALDEIRA FILHO, SN',
-			valor: 'R$ 50,00',
-			receita: 'DETRAN',
-			infracao: 'Estacionamento irregular.',
-			municipio: 'São Paulo',
-			vencimento: '2023-10-10',
-			status: 'cancelado' as PaymentStatus
-		}
-	};
-
 	const statusIconMap: StatusIconMapping = {
 		pago: 'check-circle',
 		pendente: 'clock',
@@ -47,10 +26,10 @@ const InvoiceScreen: React.FC = () => {
 	};
 
 	const getStatusIcon = () => {
-		const status = mockMultaDetail.detail.status;
-		const iconName = statusIconMap[status];
-		let color;
+		const status = Array.isArray(param.status) ? param.status[0] : param.status;
+		const iconName = statusIconMap[status as keyof StatusIconMapping] || 'help-circle';
 
+		let color;
 		switch (status) {
 			case 'pago':
 				color = Colors.success;
@@ -77,20 +56,21 @@ const InvoiceScreen: React.FC = () => {
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>
 					<View style={styles.cardContent}>
-						<Text style={styles.title}>{mockMultaDetail.name}</Text>
-						<Text style={styles.subtitle}>{mockMultaDetail.detail.infracao}</Text>
+						<Text style={styles.title}>{param?.title}</Text>
+						<Text style={styles.subtitle}>{param?.subtitle}</Text>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Valor</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.valor}</Text>
+							<Text style={styles.value}>{param?.value}</Text>
 						</View>
 
 						<View style={styles.qrContainer}>
 							<Image source={qrcode} style={[styles.qrImage, {borderColor: color}]} />
 							<MaterialCommunityIcons name={icon} size={60} color={color} style={styles.statusIcon} />
 						</View>
+						<Text style={[styles.status, {color: color}]}>{param?.status}</Text>
 
-						{mockMultaDetail.detail.status === 'pago' ? (
+						{param?.status === 'pago' ? (
 							<ButtonCustom
 								style={styles.saveButton}
 								color={Colors.primary}
@@ -121,7 +101,7 @@ const InvoiceScreen: React.FC = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#f9f9f9',
+		backgroundColor: '#f1f1f1',
 		padding: 20
 	},
 	scrollContainer: {
@@ -139,7 +119,8 @@ const styles = StyleSheet.create({
 		elevation: 5
 	},
 	cardContent: {
-		flexDirection: 'column'
+		flexDirection: 'column',
+		paddingBottom: 50
 	},
 	title: {
 		fontSize: 18,
@@ -165,6 +146,12 @@ const styles = StyleSheet.create({
 		fontSize: 20,
 		lineHeight: 24,
 		textAlign: 'center'
+	},
+	status: {
+		fontSize: 20,
+		lineHeight: 24,
+		textAlign: 'center',
+		textTransform: 'uppercase'
 	},
 	infoContainer: {
 		marginBottom: 15,

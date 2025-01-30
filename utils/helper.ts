@@ -6,10 +6,8 @@ export const fakerAsync = (seconds = 2000, shouldError = false) =>
 	new Promise<any[]>((resolve, reject) => {
 		setTimeout(() => {
 			if (shouldError) {
-				// Simulando um erro com um objeto similar ao que você recebe
 				reject({code: '1002', error: 'Unauthorized'});
 			} else {
-				// Retorna um array vazio se não houver erro
 				resolve([]);
 			}
 		}, seconds);
@@ -35,7 +33,7 @@ export const validateWordCount = (minWords: number, maxWords: number) => {
 	};
 };
 
-export function formatCurrency(value: number | undefined, options?: {digits?: number; prefix?: string}) {
+export function formatCurrency(value: number | undefined | null, options?: {digits?: number; prefix?: string}) {
 	const formated = Intl.NumberFormat('pt-BR', {
 		maximumFractionDigits: options?.digits ?? 2,
 		minimumFractionDigits: options?.digits ?? 2

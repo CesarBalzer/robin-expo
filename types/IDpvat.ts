@@ -4,8 +4,8 @@ export interface IDpvat {
 	value: number;
 	year: number;
 	duedate?: string;
-	detail?: any[];
-	md5: string;
+	detail?: any;
+	md5?: string;
 	created_at?: string;
 	updated_at?: string;
 }

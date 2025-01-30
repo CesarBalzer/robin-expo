@@ -13,22 +13,8 @@ const InfractionScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const router = useRouter();
 
-	const mockMultaDetail = {
-		name: 'Multa por estacionamento irregular',
-		value: 50.0,
-		year: 2023,
-		duedate: '2023-10-10',
-		detail: {
-			ait: 'AA01690791',
-			data: '2023-06-13 19:43:00',
-			guia: '180187820',
-			local: 'AV. CARLOS CALDEIRA FILHO, SN',
-			valor: 'R$ 50,00',
-			receita: 'DETRAN',
-			infracao: 'Estacionamento irregular.',
-			municipio: 'São Paulo',
-			vencimento: '2023-10-10'
-		}
+	const copyToClipboard = (text: string) => {
+		console.log('COPY TO CLIPBOARD => ', text);
 	};
 
 	return (
@@ -38,12 +24,12 @@ const InfractionScreen: React.FC = () => {
 			<ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.card}>
 					<View style={styles.cardContent}>
-						<Text style={styles.title}>{mockMultaDetail.name}</Text>
-						<Text style={styles.subtitle}>{mockMultaDetail.detail.infracao}</Text>
+						<Text style={styles.title}>{param.title}</Text>
+						<Text style={styles.subtitle}>{param.subtitle}</Text>
 
 						<View style={styles.infoContainer}>
 							<Text style={styles.label}>Valor</Text>
-							<Text style={styles.value}>{mockMultaDetail.detail.valor}</Text>
+							<Text style={styles.value}>{param.value}</Text>
 						</View>
 
 						<View style={styles.qrContainer}>
@@ -54,7 +40,67 @@ const InfractionScreen: React.FC = () => {
 								label="Copiar código"
 								size="small"
 								icon={<MaterialCommunityIcons name={'content-copy'} color={Colors.surface} />}
-								onPress={()=> router.navigate('/payments/invoice')}
+								onPress={() => copyToClipboard('Balzer')}
+							/>
+						</View>
+
+						<View style={{flexDirection: 'row', justifyContent: 'space-around', flexWrap:'wrap'}}>
+							<ButtonCustom
+								style={styles.button}
+								color={Colors.success}
+								label="Comprovante pago"
+								size="small"
+								icon={<MaterialCommunityIcons name={'file-document-outline'} color={Colors.surface} />}
+								onPress={() =>
+									router.navigate({
+										pathname: `payments/invoice`,
+										params: {
+											id: param.id,
+											title: param.title,
+											subtitle: param.subtitle,
+											value: param.value,
+											status: 'pago'
+										}
+									})
+								}
+							/>
+							<ButtonCustom
+								style={styles.button}
+								color={Colors.warning}
+								label="Comprovante pendente"
+								size="small"
+								icon={<MaterialCommunityIcons name={'file-document-outline'} color={Colors.surface} />}
+								onPress={() =>
+									router.navigate({
+										pathname: `payments/invoice`,
+										params: {
+											id: param.id,
+											title: param.title,
+											subtitle: param.subtitle,
+											value: param.value,
+											status: 'pendente'
+										}
+									})
+								}
+							/>
+							<ButtonCustom
+								style={styles.button}
+								color={Colors.danger}
+								label="Comprovante cancelado"
+								size="small"
+								icon={<MaterialCommunityIcons name={'file-document-outline'} color={Colors.surface} />}
+								onPress={() =>
+									router.navigate({
+										pathname: `payments/invoice`,
+										params: {
+											id: param.id,
+											title: param.title,
+											subtitle: param.subtitle,
+											value: param.value,
+											status: 'cancelado'
+										}
+									})
+								}
 							/>
 						</View>
 
@@ -74,7 +120,7 @@ const InfractionScreen: React.FC = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#f9f9f9',
+		backgroundColor: '#f1f1f1',
 		padding: 20
 	},
 	scrollContainer: {
@@ -92,12 +138,12 @@ const styles = StyleSheet.create({
 		elevation: 5
 	},
 	cardContent: {
-		flexDirection: 'column'
+		flexDirection: 'column',
+		paddingBottom: 50
 	},
 	title: {
 		fontSize: 18,
 		fontWeight: '700',
-		marginBottom: 10,
 		color: Colors.secondary,
 		textAlign: 'center'
 	},
@@ -110,6 +156,7 @@ const styles = StyleSheet.create({
 	label: {
 		color: '#006385',
 		fontSize: 16,
+		fontWeight: '700',
 		marginBottom: 4,
 		textAlign: 'center'
 	},
@@ -117,7 +164,8 @@ const styles = StyleSheet.create({
 		color: '#000',
 		fontSize: 20,
 		lineHeight: 24,
-		textAlign: 'center'
+		textAlign: 'center',
+		fontWeight: '600'
 	},
 	separator: {
 		borderBottomColor: '#E0E0E0',
@@ -140,7 +188,11 @@ const styles = StyleSheet.create({
 	},
 	copyButton: {
 		alignSelf: 'center',
-		marginBottom: 20
+		marginVertical: 20
+	},
+	button: {
+		
+		marginVertical: 2
 	},
 	tipsContainer: {
 		paddingVertical: 10
