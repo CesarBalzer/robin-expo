@@ -5,3 +5,4 @@ export {Ipva} from './ipva';
 export {InfoVehicle} from './infoVehicle';
 export {Vehicle} from './vehicle';
 export {Payments} from './payments';
+export {Fipe} from './fipe';

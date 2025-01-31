@@ -1,27 +1,120 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import {FontAwesome} from '@expo/vector-icons';
 import CustomPicker from '@app/components/CustomPicker';
+import api from '@app/api';
 
 const FipeScreen: React.FC = () => {
-	const [marca, setMarca] = useState('Citroen');
-	const [modelo, setModelo] = useState('AIRCROSS GLX 1.6 FLEX 16V 5P MEC');
-	const [ano, setAno] = useState('2012/2013');
+	const [loading, setLoading] = useState<boolean>(false);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [brands, setBrands] = useState<any[]>([]);
+	const [models, setModels] = useState<any[]>([]);
+	const [years, setYears] = useState<any[]>([]);
+	const [selectedBrand, setSelectedBrand] = useState<any | null>(null);
+	const [selectedModel, setSelectedModel] = useState<any | null>(null);
+	const [selectedYear, setSelectedYear] = useState<any | null>(null);
+
+	useEffect(() => {
+		loadBrands();
+	}, []);
+
+	const loadBrands = async () => {
+		try {
+			setLoading(true);
+			setErrorMessage(null);
+			// const listBrands = await api.fipe.fetchBrands(1);
+			setBrands([
+				{id: 1, name: 'Acura'},
+				{id: 2, name: 'Aston Martin'}
+			]);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Erro ao carregar as marcas.');
+			setBrands([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (selectedBrand) {
+			loadModels();
+		} else {
+			setModels([]);
+			setYears([]);
+			setSelectedModel(null);
+			setSelectedYear(null);
+		}
+	}, [selectedBrand]);
+
+	const loadModels = async () => {
+		try {
+			setLoading(true);
+			setErrorMessage(null);
+			const listModels = await api.fipe.fetchModels(1, selectedBrand.id);
+			setModels(listModels);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Erro ao carregar os modelos.');
+			setModels([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		if (selectedModel) {
+			loadYears();
+		} else {
+			setYears([]);
+			setSelectedYear(null);
+		}
+	}, [selectedModel]);
+
+	const loadYears = async () => {
+		try {
+			setLoading(true);
+			setErrorMessage(null);
+			const listYears = await api.fipe.fetchYears(1, selectedBrand.id, selectedModel.id);
+			setYears(listYears);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Erro ao carregar os anos.');
+			setYears([]);
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	return (
 		<ScrollView contentContainerStyle={styles.container}>
 			<Text style={styles.title}>Tabela FIPE</Text>
 
-			<CustomPicker label="Marca do veículo" selectedValue={marca} onValueChange={setMarca} options={['Citroen']} />
+			<CustomPicker
+				title="Selecione uma marca"
+				label="Marca do veículo"
+				selectedValue={selectedBrand?.name || ''}
+				onValueChange={setSelectedBrand}
+				options={brands}
+			/>
+
 			<CustomPicker
 				label="Modelo"
-				selectedValue={modelo}
-				onValueChange={setModelo}
-				options={['AIRCROSS GLX 1.6 FLEX 16V 5P MEC']}
+				selectedValue={selectedModel?.name || ''}
+				onValueChange={setSelectedModel}
+				options={models}
+				disabled={!selectedBrand}
 			/>
-			<CustomPicker label="Ano modelo" selectedValue={ano} onValueChange={setAno} options={['2012/2013']} />
 
-			<TouchableOpacity style={styles.button}>
+			<CustomPicker
+				label="Ano modelo"
+				selectedValue={selectedYear?.name || ''}
+				onValueChange={setSelectedYear}
+				options={years}
+				disabled={!selectedModel}
+			/>
+
+			<TouchableOpacity style={styles.button} disabled={!selectedYear}>
 				<FontAwesome name="search" size={16} color="#fff" />
 				<Text style={styles.buttonText}>Pesquisar</Text>
 			</TouchableOpacity>

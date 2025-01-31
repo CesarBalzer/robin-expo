@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, ScrollView, Image, BackHandler, Dimensions, StyleSheet} from 'react-native';
+import {View, ScrollView, Image, BackHandler, Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
 import Menu from '@app/components/MenuCard';
 import {banner_home} from '@app/assets';
 import {useAuth} from '@app/hooks/useAuth';
@@ -14,6 +14,7 @@ import {useModal} from '@app/context/modalcontext';
 import VehicleForm from '@app/components/vehicle/VehicleForm';
 
 import {menuItems} from '../menuItems';
+import {useRouter} from 'expo-router';
 
 const {width} = Dimensions.get('window');
 
@@ -23,6 +24,7 @@ const DashboardScreen: React.FC = () => {
 	const {theme} = useTheme();
 	const {setVehicles, vehicle} = useVehicle();
 	const {showModal, hideModal} = useModal();
+	const router = useRouter();
 
 	useEffect(() => {
 		const backAction = () => {
@@ -74,7 +76,15 @@ const DashboardScreen: React.FC = () => {
 			</View>
 			<Menu items={menuItems} />
 			<View style={styles.bannerContainer}>
-				<Image source={banner_home} style={styles.banner} />
+				<TouchableOpacity
+					onPress={() => {
+						router.navigate({
+							pathname: `home/fipe`
+						});
+					}}
+				>
+					<Image source={banner_home} style={styles.banner} />
+				</TouchableOpacity>
 			</View>
 			<View style={styles.logoutContainer}>
 				<ButtonCustom

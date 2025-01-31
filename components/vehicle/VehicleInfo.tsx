@@ -7,17 +7,15 @@ import {formatDate} from 'date-fns';
 
 const VehicleInfo: React.FC = () => {
 	const {vehicle} = useVehicle();
+	const {name, plate, renavam, updated_at} = vehicle || {};
+
 	return (
 		<View style={styles.container}>
-			<View style={styles.iconContainer}>
-				<Icon name="car-hatchback" size={24} color={Colors.primary} />
-			</View>
+			<Icon name="car-hatchback" size={24} color={Colors.primary} style={styles.icon} />
 			<View style={styles.infoContainer}>
-				<Text style={styles.title}>{`${vehicle?.name || ''} ${vehicle?.plate}`}</Text>
-				<Text style={styles.subtitle}>{`Renavam: ${vehicle?.renavam}`}</Text>
-				<Text style={styles.helper}>{`Atualizado em: ${
-					vehicle?.updated_at && formatDate(vehicle?.updated_at, 'dd/MM/yyyy HH:ii')
-				}`}</Text>
+				<Text style={styles.title}>{name ? `${name} - ${plate}` : plate}</Text>
+				<Text style={styles.subtitle}>{`Renavam: ${renavam || 'N/A'}`}</Text>
+				<Text style={styles.helper}>{`Atualizado em: ${updated_at ? formatDate(updated_at, 'dd/MM/yyyy HH:mm') : 'N/A'}`}</Text>
 			</View>
 		</View>
 	);
@@ -33,14 +31,12 @@ const styles = StyleSheet.create({
 		borderColor: Colors.textSecondary,
 		borderWidth: 1
 	},
-	iconContainer: {
+	icon: {
 		padding: 10
 	},
 	infoContainer: {
-		flexGrow: 1,
-		flexShrink: 1,
-		padding: 10,
-		flexDirection: 'column'
+		flex: 1,
+		padding: 10
 	},
 	title: {
 		color: '#9B9B9B',

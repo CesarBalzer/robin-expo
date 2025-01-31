@@ -8,8 +8,8 @@ interface ItemInfoProps {
 	subtitle: string;
 	helper: string;
 	helperPrefix?: string;
-	isPaid: boolean;
-	isOverdue: boolean;
+	isPaid?: boolean;
+	isOverdue?: boolean;
 	onPress: () => void;
 }
 

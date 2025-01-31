@@ -1,5 +1,5 @@
 import axios, {AxiosInstance} from 'axios';
-import {Auth, Dpvat, Payments, Vehicle} from './modules';
+import {Auth, Dpvat, Fipe, Payments, Vehicle} from './modules';
 import {Infraction} from './modules/infraction';
 import StorageService from '@app/services/StorageService';
 import {Ipva} from './modules/ipva';
@@ -14,6 +14,7 @@ export default class Service {
 	info!: InfoVehicle;
 	vehicle!: Vehicle;
 	payments!: Payments;
+	fipe!: Fipe;
 
 	private unauthenticatedCallbacks: (() => void)[] = [];
 
@@ -69,6 +70,7 @@ export default class Service {
 		this.info = new InfoVehicle(client);
 		this.vehicle = new Vehicle(client);
 		this.payments = new Payments(client);
+		this.fipe = new Fipe(client);
 	}
 
 	public onUnauthenticated(callback: () => void) {

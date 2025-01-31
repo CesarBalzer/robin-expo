@@ -1,12 +1,12 @@
 import CNHCard from '@app/components/CnhCard';
-import { Colors } from '@app/constants';
+import {Colors} from '@app/constants';
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 
 export default function CnhScreen() {
 	return (
 		<View style={styles.container}>
-			<Text style={styles.title}>CNH asdasdasdas</Text>
+			<Header/>
 			<CNHCard
 				nome="Cesar Edenir Balzer"
 				numeroCNH="1234567890"
@@ -20,16 +20,33 @@ export default function CnhScreen() {
 	);
 }
 
+const Header: React.FC = () => (
+	<View style={styles.header}>
+		<Text style={styles.headerText}>Minha CNH</Text>
+	</View>
+);
+
 const styles = StyleSheet.create({
+	header: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center',
+		marginVertical: 20
+	},
+	headerText: {
+		fontSize: 20,
+		fontWeight: '700',
+		marginTop:50
+	},
 	container: {
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
 		backgroundColor: '#f0f0f0'
 	},
-	title: {
-		fontSize: 24,
-		marginBottom: 20,
-		color:Colors.primarySurface
-	}
+	// title: {
+	// 	fontSize: 24,
+	// 	marginBottom: 20,
+	// 	color: Colors.primarySurface
+	// }
 });

@@ -26,7 +26,8 @@ export default function Layout() {
 		{name: 'crlv', backPath: 'home', showBackButton: true},
 		{name: 'license', backPath: 'home', showBackButton: true},
 		{name: 'secure', backPath: 'home', showBackButton: true},
-		{name: 'financing', backPath: 'home', showBackButton: true}
+		{name: 'financing', backPath: 'home', showBackButton: true},
+		{name: 'fipe', backPath: 'home', showBackButton: true}
 	];
 
 	return (
