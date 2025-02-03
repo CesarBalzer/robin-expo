@@ -3,16 +3,48 @@ import {View, Text, StyleSheet, TouchableOpacity, ScrollView} from 'react-native
 import {FontAwesome} from '@expo/vector-icons';
 import CustomPicker from '@app/components/CustomPicker';
 import api from '@app/api';
+import {Colors} from '@app/constants';
+
+interface Brand {
+	id: string;
+	name: string;
+}
+
+interface Model {
+	id: string;
+	name: string;
+}
+
+interface Year {
+	id: string;
+	name: string;
+}
+
+interface FipeData {
+	price: string;
+	brand: string;
+	model: string;
+	year: number;
+	fuel: string;
+	fipe_code: string;
+	reference_month: string;
+	authentication: string;
+	vehicle_type: number;
+	abbr_fuel: string;
+	date: Date;
+	currency: string;
+}
 
 const FipeScreen: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
-	const [brands, setBrands] = useState<any[]>([]);
-	const [models, setModels] = useState<any[]>([]);
-	const [years, setYears] = useState<any[]>([]);
-	const [selectedBrand, setSelectedBrand] = useState<any | null>(null);
-	const [selectedModel, setSelectedModel] = useState<any | null>(null);
-	const [selectedYear, setSelectedYear] = useState<any | null>(null);
+	const [data, setData] = useState<FipeData | null>(null);
+	const [brands, setBrands] = useState<Brand[]>([]);
+	const [models, setModels] = useState<Model[]>([]);
+	const [years, setYears] = useState<Year[]>([]);
+	const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+	const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+	const [selectedYear, setSelectedYear] = useState<Year | null>(null);
 
 	useEffect(() => {
 		loadBrands();
@@ -23,10 +55,12 @@ const FipeScreen: React.FC = () => {
 			setLoading(true);
 			setErrorMessage(null);
 			// const listBrands = await api.fipe.fetchBrands(1);
-			setBrands([
-				{id: 1, name: 'Acura'},
-				{id: 2, name: 'Aston Martin'}
-			]);
+			const response = await fetch('https://parallelum.com.br/fipe/api/v1/carros/marcas');
+			const json = await response.json();
+			const listBrands = json.map((item: any) => {
+				return {id: item.codigo, name: item.nome};
+			});
+			setBrands(listBrands);
 		} catch (error) {
 			console.error(error);
 			setErrorMessage('Erro ao carregar as marcas.');
@@ -51,7 +85,12 @@ const FipeScreen: React.FC = () => {
 		try {
 			setLoading(true);
 			setErrorMessage(null);
-			const listModels = await api.fipe.fetchModels(1, selectedBrand.id);
+			// const listModels = await api.fipe.fetchModels(1, selectedBrand.id);
+			const response = await fetch(`https://parallelum.com.br/fipe/api/v1/carros/marcas/${selectedBrand?.id}/modelos`);
+			const json = await response.json();
+			const listModels = json.modelos.map((item: any) => {
+				return {id: item.codigo, name: item.nome};
+			});
 			setModels(listModels);
 		} catch (error) {
 			console.error(error);
@@ -75,8 +114,50 @@ const FipeScreen: React.FC = () => {
 		try {
 			setLoading(true);
 			setErrorMessage(null);
-			const listYears = await api.fipe.fetchYears(1, selectedBrand.id, selectedModel.id);
+			// const listYears = await api.fipe.fetchYears(1, selectedBrand.id, selectedModel.id);
+			const response = await fetch(
+				`https://parallelum.com.br/fipe/api/v1/carros/marcas/${selectedBrand?.id}/modelos/${selectedModel?.id}/anos`
+			);
+			const json = await response.json();
+			const listYears = json.map((item: any) => {
+				return {id: item.codigo, name: item.nome};
+			});
 			setYears(listYears);
+		} catch (error) {
+			console.error(error);
+			setErrorMessage('Erro ao carregar os anos.');
+			setYears([]);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const loadPrice = async () => {
+		try {
+			setLoading(true);
+			setErrorMessage(null);
+			// const listPrice = await api.fipe.fetchYears(1, selectedBrand.id, selectedModel.id);
+			const response = await fetch(
+				`https://parallelum.com.br/fipe/api/v1/carros/marcas/${selectedBrand?.id}/modelos/${selectedModel?.id}/anos/${selectedYear?.id}`
+			);
+			const json = await response.json();
+
+			console.log('JSON => ', json);
+
+			setData({
+				price: json.Valor,
+				brand: json.Marca,
+				model: json.Modelo,
+				year: json.AnoModelo,
+				fuel: json.Combustivel,
+				fipe_code: json.CodigoFipe,
+				reference_month: json.MesReferencia,
+				authentication: '',
+				vehicle_type: json.TipoVeiculo,
+				abbr_fuel: json.SiglaCombustivel,
+				date: new Date(),
+				currency: 'BRL'
+			});
 		} catch (error) {
 			console.error(error);
 			setErrorMessage('Erro ao carregar os anos.');
@@ -114,27 +195,27 @@ const FipeScreen: React.FC = () => {
 				disabled={!selectedModel}
 			/>
 
-			<TouchableOpacity style={styles.button} disabled={!selectedYear}>
+			<TouchableOpacity style={styles.button} disabled={!selectedYear} onPress={loadPrice}>
 				<FontAwesome name="search" size={16} color="#fff" />
 				<Text style={styles.buttonText}>Pesquisar</Text>
 			</TouchableOpacity>
 
 			<View style={styles.resultContainer}>
-				{renderResultRow('Mês de referência', 'Julho de 2024')}
-				{renderResultRow('Código Fipe', '011102-3')}
-				{renderResultRow('Marca', 'Citroën')}
-				{renderResultRow('Modelo', 'AIRCROSS GLX 1.6 FLEX 16V 5p Mec.')}
-				{renderResultRow('Ano Modelo', '2013 Gasolina')}
-				{renderResultRow('Autenticação', 'r5ggrryybnnc')}
-				{renderResultRow('Data da consulta', '11 de julho de 2024 16:01')}
+				{renderResultRow('Mês de referência', data?.reference_month || '')}
+				{renderResultRow('Código Fipe', data?.fipe_code || '')}
+				{renderResultRow('Marca', data?.brand || '')}
+				{renderResultRow('Modelo', data?.model || '')}
+				{renderResultRow('Ano Modelo', data?.year?.toString() || '')}
+				{renderResultRow('Autenticação', data?.authentication || '')}
+				{renderResultRow('Data da consulta', data?.date?.toLocaleDateString() || '')}
 				<View style={styles.priceContainer}>
 					<Text style={styles.priceLabel}>Preço Médio</Text>
-					<Text style={styles.priceValue}>R$ 36.601,00</Text>
+					<Text style={styles.priceValue}>{data?.price || 'R$ 0,00'}</Text>
 				</View>
 			</View>
 
 			<TouchableOpacity style={styles.shareButton}>
-				<FontAwesome name="share-alt" size={16} color="#007bff" />
+				<FontAwesome name="share-alt" size={16} color={Colors.primary} />
 				<Text style={styles.shareText}>Compartilhar</Text>
 			</TouchableOpacity>
 		</ScrollView>
@@ -164,7 +245,7 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
-		backgroundColor: '#007bff',
+		backgroundColor: Colors.primary,
 		padding: 12,
 		borderRadius: 8,
 		marginTop: 10
@@ -192,7 +273,7 @@ const styles = StyleSheet.create({
 		fontSize: 16
 	},
 	priceContainer: {
-		backgroundColor: '#007bff',
+		backgroundColor: Colors.primary,
 		padding: 10,
 		borderRadius: 8,
 		marginTop: 10,
@@ -209,6 +290,10 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold'
 	},
 	shareButton: {
+		borderColor: Colors.primary,
+		borderWidth: 1,
+		borderRadius: 10,
+		padding: 5,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
@@ -216,7 +301,7 @@ const styles = StyleSheet.create({
 	},
 	shareText: {
 		fontSize: 16,
-		color: '#007bff',
+		color: Colors.primary,
 		marginLeft: 8
 	}
 });
