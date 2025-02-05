@@ -74,7 +74,6 @@ export default function LoginScreen() {
 				error={error && !email}
 				helperText={error && !email ? 'Campo obrigatório' : undefined}
 				size={'fullWidth'}
-				
 			/>
 
 			<Input
@@ -86,7 +85,6 @@ export default function LoginScreen() {
 				error={error && !password}
 				helperText={error && !password ? 'Campo obrigatório' : undefined}
 				size={'fullWidth'}
-				
 			/>
 
 			<View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>

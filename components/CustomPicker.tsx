@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Modal, FlatList} from 'react-native';
-import {FontAwesome} from '@expo/vector-icons';
-import {Colors} from '@app/constants';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, FlatList, TextInput } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { Colors } from '@app/constants';
 
 type CustomPickerProps = {
 	label: string;
@@ -10,6 +10,7 @@ type CustomPickerProps = {
 	onValueChange: (value: any) => void;
 	options: any[];
 	disabled?: boolean;
+	showCloseButton?: boolean;
 };
 
 const CustomPicker: React.FC<CustomPickerProps> = ({
@@ -18,9 +19,24 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 	selectedValue,
 	onValueChange,
 	options,
-	disabled = false
+	disabled = false,
+	showCloseButton = true
 }) => {
 	const [modalVisible, setModalVisible] = useState(false);
+	const [searchQuery, setSearchQuery] = useState('');
+	const searchInputRef = useRef<TextInput>(null);
+
+	useEffect(() => {
+		if (modalVisible) {
+			setTimeout(() => {
+				searchInputRef.current?.focus();
+			}, 100);
+		}
+	}, [modalVisible]);
+
+	const filteredOptions = options.filter((item) =>
+		item.name.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	return (
 		<View style={styles.pickerContainer}>
@@ -37,23 +53,48 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 			<Modal visible={modalVisible} transparent animationType="slide">
 				<View style={styles.modalContainer}>
 					<View style={styles.modalContent}>
+						{showCloseButton && (
+							<TouchableOpacity style={styles.modalCloseIcon} onPress={() => setModalVisible(false)}>
+								<FontAwesome name="times" size={22} color={Colors.text} />
+							</TouchableOpacity>
+						)}
+
 						<Text style={styles.modalTitle}>{title}</Text>
+
+						<View style={styles.searchContainer}>
+							<TextInput
+								ref={searchInputRef}
+								style={styles.searchInput}
+								placeholder="Digite algo para pesquisar..."
+								value={searchQuery}
+								onChangeText={setSearchQuery}
+							/>
+							{searchQuery.length > 0 && (
+								<TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+									<FontAwesome name="times" size={16} color="#999" />
+								</TouchableOpacity>
+							)}
+						</View>
+
 						<FlatList
-							data={options}
+							data={filteredOptions}
 							keyExtractor={(item) => item.id.toString()}
-							renderItem={({item}) => (
+							renderItem={({ item }) => (
 								<TouchableOpacity
 									style={styles.option}
 									onPress={() => {
 										onValueChange(item);
 										setModalVisible(false);
+										setSearchQuery('');
 									}}
 								>
 									<Text style={styles.optionText}>{item.name}</Text>
 								</TouchableOpacity>
 							)}
 						/>
+
 						<TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+							<FontAwesome name="times" size={20} color="#fff" />
 							<Text style={styles.closeButtonText}>Fechar</Text>
 						</TouchableOpacity>
 					</View>
@@ -64,13 +105,31 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 };
 
 const styles = StyleSheet.create({
-	pickerContainer: {marginBottom: 15},
-	label: {fontSize: 16, fontWeight: 'bold', marginBottom: 5},
+	pickerContainer: { marginBottom: 15 },
+	label: { fontSize: 16, fontWeight: 'bold', marginBottom: 5 },
 	modalTitle: {
 		fontSize: 16,
 		fontWeight: 'bold',
 		marginBottom: 5,
-		padding: 10
+		padding: 10,
+		textAlign: 'center'
+	},
+	searchContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		borderWidth: 1,
+		borderColor: '#ccc',
+		borderRadius: 8,
+		marginBottom: 10,
+		paddingHorizontal: 10
+	},
+	searchInput: {
+		flex: 1,
+		height: 40,
+		fontSize: 16
+	},
+	clearButton: {
+		padding: 5
 	},
 	picker: {
 		flexDirection: 'row',
@@ -84,7 +143,7 @@ const styles = StyleSheet.create({
 		backgroundColor: '#f2f2f2',
 		borderColor: '#ccc'
 	},
-	pickerText: {fontSize: 16},
+	pickerText: { fontSize: 16 },
 	disabledText: {
 		color: '#aaa'
 	},
@@ -96,25 +155,35 @@ const styles = StyleSheet.create({
 	},
 	modalContent: {
 		width: '98%',
-		height: '80%',
+		height: '85%',
 		backgroundColor: '#fff',
 		borderRadius: 8,
-		padding: 20
+		padding: 20,
+		position: 'relative'
+	},
+	modalCloseIcon: {
+		// backgroundColor:'gray',
+		position: 'absolute',
+		top: 15,
+		right: 15,
+		padding: 10
 	},
 	option: {
 		padding: 15,
 		borderBottomWidth: 1,
 		borderBottomColor: '#ddd'
 	},
-	optionText: {fontSize: 16},
+	optionText: { fontSize: 16 },
 	closeButton: {
+		flexDirection: 'row',
+		justifyContent: 'center',
 		marginTop: 10,
 		alignItems: 'center',
 		padding: 10,
 		backgroundColor: Colors.primary,
 		borderRadius: 8
 	},
-	closeButtonText: {color: '#fff', fontSize: 16, fontWeight: 'bold'}
+	closeButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginHorizontal: 10 }
 });
 
 export default CustomPicker;

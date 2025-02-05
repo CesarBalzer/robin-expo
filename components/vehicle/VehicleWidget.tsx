@@ -55,7 +55,6 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 	};
 
 	const setNewVehicle = async (vehicle:any) => {
-		console.log('ID => ', vehicle);
 		setLoading(true);
 		try {
 			const response = await api.vehicle.fetch(vehicle.long_id);
@@ -83,7 +82,7 @@ const VehicleWidget: React.FC<VehiclesProps> = ({handleShowModal}) => {
 		} finally {
 			setTimeout(() => {
 				setLoading(false);
-			}, 5000);
+			}, 1000);
 		}
 	};
 

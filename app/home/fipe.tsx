@@ -4,6 +4,7 @@ import {FontAwesome} from '@expo/vector-icons';
 import CustomPicker from '@app/components/CustomPicker';
 import api from '@app/api';
 import {Colors} from '@app/constants';
+import ShareFipe from '@app/components/ShareFipe';
 
 interface Brand {
 	id: string;
@@ -45,6 +46,19 @@ const FipeScreen: React.FC = () => {
 	const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
 	const [selectedModel, setSelectedModel] = useState<Model | null>(null);
 	const [selectedYear, setSelectedYear] = useState<Year | null>(null);
+	const [previousParams, setPreviousParams] = useState<{brand: string | null; model: string | null; year: string | null}>({
+		brand: null,
+		model: null,
+		year: null
+	});
+
+	const isButtonDisabled =
+		!selectedBrand ||
+		!selectedModel ||
+		!selectedYear ||
+		(selectedBrand.id === previousParams.brand &&
+			selectedModel.id === previousParams.model &&
+			selectedYear.id === previousParams.year);
 
 	useEffect(() => {
 		loadBrands();
@@ -72,10 +86,16 @@ const FipeScreen: React.FC = () => {
 
 	useEffect(() => {
 		if (selectedBrand) {
+			setModels([]);
+			setYears([]);
+			setSelectedModel(null);
+			setSelectedYear(null);
+			setData(null);
 			loadModels();
 		} else {
 			setModels([]);
 			setYears([]);
+			setData(null);
 			setSelectedModel(null);
 			setSelectedYear(null);
 		}
@@ -133,6 +153,14 @@ const FipeScreen: React.FC = () => {
 	};
 
 	const loadPrice = async () => {
+		if (
+			selectedBrand?.id === previousParams.brand &&
+			selectedModel?.id === previousParams.model &&
+			selectedYear?.id === previousParams.year
+		) {
+			return;
+		}
+
 		try {
 			setLoading(true);
 			setErrorMessage(null);
@@ -141,9 +169,6 @@ const FipeScreen: React.FC = () => {
 				`https://parallelum.com.br/fipe/api/v1/carros/marcas/${selectedBrand?.id}/modelos/${selectedModel?.id}/anos/${selectedYear?.id}`
 			);
 			const json = await response.json();
-
-			console.log('JSON => ', json);
-
 			setData({
 				price: json.Valor,
 				brand: json.Marca,
@@ -157,6 +182,12 @@ const FipeScreen: React.FC = () => {
 				abbr_fuel: json.SiglaCombustivel,
 				date: new Date(),
 				currency: 'BRL'
+			});
+
+			setPreviousParams({
+				brand: selectedBrand?.id || null,
+				model: selectedModel?.id || null,
+				year: selectedYear?.id || null
 			});
 		} catch (error) {
 			console.error(error);
@@ -180,7 +211,8 @@ const FipeScreen: React.FC = () => {
 			/>
 
 			<CustomPicker
-				label="Modelo"
+				title="Selecione um modelo"
+				label="Modelo do veículo"
 				selectedValue={selectedModel?.name || ''}
 				onValueChange={setSelectedModel}
 				options={models}
@@ -188,44 +220,58 @@ const FipeScreen: React.FC = () => {
 			/>
 
 			<CustomPicker
-				label="Ano modelo"
+				title="Selecione um ano"
+				label="Ano do modelo"
 				selectedValue={selectedYear?.name || ''}
 				onValueChange={setSelectedYear}
 				options={years}
 				disabled={!selectedModel}
 			/>
 
-			<TouchableOpacity style={styles.button} disabled={!selectedYear} onPress={loadPrice}>
-				<FontAwesome name="search" size={16} color="#fff" />
-				<Text style={styles.buttonText}>Pesquisar</Text>
-			</TouchableOpacity>
-
-			<View style={styles.resultContainer}>
-				{renderResultRow('Mês de referência', data?.reference_month || '')}
-				{renderResultRow('Código Fipe', data?.fipe_code || '')}
-				{renderResultRow('Marca', data?.brand || '')}
-				{renderResultRow('Modelo', data?.model || '')}
-				{renderResultRow('Ano Modelo', data?.year?.toString() || '')}
-				{renderResultRow('Autenticação', data?.authentication || '')}
-				{renderResultRow('Data da consulta', data?.date?.toLocaleDateString() || '')}
-				<View style={styles.priceContainer}>
-					<Text style={styles.priceLabel}>Preço Médio</Text>
-					<Text style={styles.priceValue}>{data?.price || 'R$ 0,00'}</Text>
-				</View>
+			<View style={styles.containerButtonSearch}>
+				<TouchableOpacity
+					style={[styles.button, isButtonDisabled && styles.buttonDisabled]}
+					disabled={!selectedYear || loading}
+					onPress={loadPrice}
+				>
+					<FontAwesome name="search" size={16} color="#fff" />
+					<Text style={styles.buttonText}>Pesquisar</Text>
+				</TouchableOpacity>
 			</View>
 
-			<TouchableOpacity style={styles.shareButton}>
-				<FontAwesome name="share-alt" size={16} color={Colors.primary} />
-				<Text style={styles.shareText}>Compartilhar</Text>
-			</TouchableOpacity>
+			{data && (
+				<View style={styles.resultContainer}>
+					{renderResultRow('Mês de referência', data?.reference_month || '')}
+					{renderResultRow('Código Fipe', data?.fipe_code || '')}
+					{renderResultRow('Marca', data?.brand || '')}
+					{renderResultRow('Modelo', data?.model || '')}
+					{renderResultRow('Ano Modelo', data?.year?.toString() || '')}
+					{renderResultRow('Autenticação', data?.authentication || '')}
+					{renderResultRow('Data da consulta', data?.date?.toLocaleDateString() || '')}
+					<View>
+						<View style={styles.priceContainer}>
+							<Text style={styles.priceLabel}>Preço Médio</Text>
+							<Text style={styles.priceValue}>{data?.price || 'R$ 0,00'}</Text>
+						</View>
+					</View>
+				</View>
+			)}
+
+			{data && (
+				<View style={{marginVertical: 30}}>
+					<ShareFipe data={data} />
+				</View>
+			)}
 		</ScrollView>
 	);
 };
 
 const renderResultRow = (label: string, value: string) => (
-	<View style={styles.resultRow}>
-		<Text style={styles.resultLabel}>{label}:</Text>
-		<Text style={styles.resultValue}>{value}</Text>
+	<View>
+		<View style={styles.resultRow}>
+			<Text style={styles.resultLabel}>{label}:</Text>
+			<Text style={styles.resultValue}>{value}</Text>
+		</View>
 	</View>
 );
 
@@ -241,13 +287,18 @@ const styles = StyleSheet.create({
 		textAlign: 'center',
 		marginBottom: 20
 	},
+	containerButtonSearch: {
+		flexDirection: 'row',
+		justifyContent: 'center'
+	},
 	button: {
+		width: 200,
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: Colors.primary,
 		padding: 12,
-		borderRadius: 8,
+		borderRadius: 20,
 		marginTop: 10
 	},
 	buttonText: {
@@ -255,54 +306,68 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		marginLeft: 8
 	},
+	buttonDisabled: {
+		backgroundColor: Colors.disabled
+	},
 	resultContainer: {
 		backgroundColor: '#f8f9fa',
-		padding: 15,
-		borderRadius: 8,
-		marginTop: 20
+		borderRadius: 10,
+		marginTop: 20,
+		borderWidth: 1,
+		borderColor: '#9B9B9B'
 	},
 	resultRow: {
+		paddingVertical: 5,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		marginBottom: 5
+		alignItems: 'center',
+		borderBottomWidth: 1,
+		borderBottomColor: '#9B9B9B'
 	},
 	resultLabel: {
-		fontWeight: 'bold'
+		flex: 1,
+		fontWeight: 'bold',
+		paddingLeft: 10,
+		marginTop: 5,
+		paddingVertical: 10
 	},
 	resultValue: {
-		fontSize: 16
+		flex: 1,
+		justifyContent: 'flex-start',
+		fontSize: 16,
+		marginTop: 5,
+		paddingVertical: 10,
+		textAlign: 'left'
+		// backgroundColor:'brown',
 	},
 	priceContainer: {
 		backgroundColor: Colors.primary,
-		padding: 10,
-		borderRadius: 8,
-		marginTop: 10,
-		alignItems: 'center'
+		paddingVertical: 10,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		borderBottomWidth: 1,
+		borderBottomColor: Colors.primary,
+		borderBottomLeftRadius: 10,
+		borderBottomRightRadius: 10
 	},
 	priceLabel: {
-		color: '#fff',
+		flex: 1,
 		fontSize: 16,
-		fontWeight: 'bold'
+		color: '#fff',
+		fontWeight: 'bold',
+		paddingLeft: 10,
+		marginTop: 5,
+		paddingVertical: 10
 	},
 	priceValue: {
+		flex: 1,
 		color: '#fff',
+		justifyContent: 'flex-start',
 		fontSize: 18,
-		fontWeight: 'bold'
-	},
-	shareButton: {
-		borderColor: Colors.primary,
-		borderWidth: 1,
-		borderRadius: 10,
-		padding: 5,
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'center',
-		marginTop: 15
-	},
-	shareText: {
-		fontSize: 16,
-		color: Colors.primary,
-		marginLeft: 8
+		marginTop: 5,
+		paddingVertical: 10,
+		textAlign: 'left'
 	}
 });
 

@@ -4,7 +4,7 @@ import Menu from '@app/components/MenuCard';
 import {banner_home} from '@app/assets';
 import {useAuth} from '@app/hooks/useAuth';
 import {ButtonCustom} from '@app/components/ButtonCustom';
-import {Ionicons} from '@expo/vector-icons';
+import {FontAwesome, Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
 import TitleSection from '@app/components/TitleSection';
 import VehicleWidget from '@app/components/vehicle/VehicleWidget';
 import {useTheme} from '@app/context/ThemeContext';
@@ -84,6 +84,7 @@ const DashboardScreen: React.FC = () => {
 					}}
 				>
 					<Image source={banner_home} style={styles.banner} />
+					<MaterialCommunityIcons name="plus-circle-outline" size={30} color={'#fff'} style={styles.chevronIcon} />
 				</TouchableOpacity>
 			</View>
 			<View style={styles.logoutContainer}>
@@ -110,12 +111,18 @@ const styles = StyleSheet.create({
 		width: '100%',
 		justifyContent: 'center',
 		alignItems: 'center',
-		marginVertical: 10
+		marginVertical: 10,
+		position: 'relative'  // Adicionando relative para o posicionamento absoluto do ícone
 	},
 	banner: {
 		width: width * 0.9,
 		height: width * 0.9 * (210 / 390),
 		resizeMode: 'contain'
+	},
+	chevronIcon: {
+		position: 'absolute',
+		bottom: 25,
+		right: 10
 	},
 	logoutContainer: {
 		marginTop: 20,
