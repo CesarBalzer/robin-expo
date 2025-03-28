@@ -35,7 +35,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
 	}, [modalVisible]);
 
 	const filteredOptions = options.filter((item) =>
-		item.name.toLowerCase().includes(searchQuery.toLowerCase())
+		item?.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	return (

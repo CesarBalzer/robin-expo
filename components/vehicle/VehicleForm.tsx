@@ -76,7 +76,8 @@ export default function VehicleForm({onClose}: FormVehicleProps) {
 			const updatedVehicle = await api.vehicle.fetch(response.long_id);
 			setVehicle(updatedVehicle);
 		} catch (error: any) {
-			Alert.alert('Erro', getErrorMessage(error));
+			console.log('ERROR => ', error);
+			Alert.alert('Erro', "A comunicação com a API falhou!");
 		} finally {
 			setLoading(false);
 			handleClose();
